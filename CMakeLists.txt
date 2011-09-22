@@ -1,5 +1,14 @@
 cmake_minimum_required(VERSION 2.8)
 project(image_pipeline)
+set(image_pipeline_MAJOR_VERSION 0)
+set(image_pipeline_MINOR_VERSION 1)
+set(image_pipeline_PATCH_VERSION 0)
+set(image_pipeline_SOVERSION 
+  ${image_pipeline_MAJOR_VERSION}.${image_pipeline_MINOR_VERSION}
+)
+set(image_pipeline_VERSION 
+  ${image_pipeline_MAJOR_VERSION}.${image_pipeline_MINOR_VERSION}.${image_pipeline_PATCH_VERSION}
+)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
@@ -29,3 +38,7 @@ if(BUILD_TEST)
   enable_testing()
   add_subdirectory(test)
 endif()
+
+#these setup the lib to be used by others
+include(cmake/install.cmake)
+include(cmake/config.cmake)

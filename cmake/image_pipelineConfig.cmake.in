@@ -1,0 +1,2 @@
+set(image_pipeline_INCLUDE_DIRS @image_pipeline_INCLUDE_DIRS@)
+set(image_pipeline_LIBRARIES @image_pipeline_LIBRARIES@)
