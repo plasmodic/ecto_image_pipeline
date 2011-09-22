@@ -32,7 +32,7 @@ build it
 ::
 
   % cd image_pipeline
-  % mkdir image_pipeline
+  % mkdir build
   % cd build
   % cmake ..
   % make

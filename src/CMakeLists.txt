@@ -1,6 +1,7 @@
 add_library(image_pipeline SHARED
   abi.cpp
   image_pipeline.cpp
+#  pinhole_camera_model.cpp
   )
 
 target_link_libraries(image_pipeline
