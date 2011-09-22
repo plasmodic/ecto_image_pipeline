@@ -44,4 +44,6 @@ test it
   % cd image_pipeline/build
   % make test
 
-
+use it
+^^^^^^
+See samples/user_project for a project that uses image_pipeline

@@ -1,5 +1,6 @@
 add_library(image_pipeline SHARED
   abi.cpp
+  image_pipeline.cpp
   )
 
 target_link_libraries(image_pipeline
