@@ -1,7 +1,19 @@
 #include "image_pipeline/pinhole_camera_model.h"
 #include <boost/make_shared.hpp>
+#include <exception>
 
-namespace image_geometry {
+namespace image_pipeline {
+
+// convert from Eigen to CV matrix
+// copies the data
+// note conversion from column to row major
+template<typename MatT>
+cv::Mat EigenToCV(const MatT &m)
+{
+  MatT mt = m.transpose();
+  cv::Mat mcv(m.rows(),m.cols(),CV_64F,(void *)mt.data());
+  return mcv;
+}
 
 enum DistortionState { NONE, CALIBRATED, UNKNOWN };
 
@@ -9,7 +21,7 @@ struct PinholeCameraModel::Cache
 {
   DistortionState distortion_state;
 
-  cv::Mat_<double> K_binned, P_binned; // Binning applied, but not cropping
+  cv::Mat_<double> K_binned, Kp_binned; // Binning applied, but not cropping
   
   mutable bool full_maps_dirty;
   mutable cv::Mat full_map1, full_map2;
@@ -35,7 +47,8 @@ PinholeCameraModel::PinholeCameraModel()
 PinholeCameraModel::PinholeCameraModel(const PinholeCameraModel& other)
 {
   if (other.initialized())
-    fromCameraInfo(other.cam_info_);
+    //    fromCameraInfo(other.cam_info_);
+    {}
 }
 
 // For uint32_t, string, bool...
@@ -60,109 +73,7 @@ bool updateMat(const MatT& new_mat, MatT& my_mat, cv::Mat_<double>& cv_mat, int 
   return true;
 }
 
-bool PinholeCameraModel::fromCameraInfo(const sensor_msgs::CameraInfo& msg)
-{
-  // Create our repository of cached data (rectification maps, etc.)
-  if (!cache_)
-    cache_ = boost::make_shared<Cache>();
-  
-  // Binning = 0 is considered the same as binning = 1 (no binning).
-  uint32_t binning_x = msg.binning_x ? msg.binning_x : 1;
-  uint32_t binning_y = msg.binning_y ? msg.binning_y : 1;
-
-  // ROI all zeros is considered the same as full resolution.
-  sensor_msgs::RegionOfInterest roi = msg.roi;
-  if (roi.x_offset == 0 && roi.y_offset == 0 && roi.width == 0 && roi.height == 0) {
-    roi.width  = msg.width;
-    roi.height = msg.height;
-  }
-
-  // Update time stamp (and frame_id if that changes for some reason)
-  cam_info_.header = msg.header;
-  
-  // Update any parameters that have changed. The full rectification maps are
-  // invalidated by any change in the calibration parameters OR binning.
-  bool &full_dirty = cache_->full_maps_dirty;
-  full_dirty |= update(msg.height, cam_info_.height);
-  full_dirty |= update(msg.width,  cam_info_.width);
-  full_dirty |= update(msg.distortion_model, cam_info_.distortion_model);
-  full_dirty |= updateMat(msg.D, cam_info_.D, D_, 1, msg.D.size());
-  full_dirty |= updateMat(msg.K, cam_info_.K, K_full_, 3, 3);
-  full_dirty |= updateMat(msg.R, cam_info_.R, R_, 3, 3);
-  full_dirty |= updateMat(msg.P, cam_info_.P, P_full_, 3, 4);
-  full_dirty |= update(binning_x, cam_info_.binning_x);
-  full_dirty |= update(binning_y, cam_info_.binning_y);
-
-  // The reduced rectification maps are invalidated by any of the above or a
-  // change in ROI.
-  bool &reduced_dirty = cache_->reduced_maps_dirty;
-  reduced_dirty  = full_dirty;
-  reduced_dirty |= update(roi.x_offset,   cam_info_.roi.x_offset);
-  reduced_dirty |= update(roi.y_offset,   cam_info_.roi.y_offset);
-  reduced_dirty |= update(roi.height,     cam_info_.roi.height);
-  reduced_dirty |= update(roi.width,      cam_info_.roi.width);
-  reduced_dirty |= update(roi.do_rectify, cam_info_.roi.do_rectify);
-  // As is the rectified ROI
-  cache_->rectified_roi_dirty = reduced_dirty;
-
-  // Figure out how to handle the distortion
-  if (cam_info_.distortion_model == sensor_msgs::distortion_models::PLUMB_BOB ||
-      cam_info_.distortion_model == sensor_msgs::distortion_models::RATIONAL_POLYNOMIAL) {
-    cache_->distortion_state = (cam_info_.D[0] == 0.0) ? NONE : CALIBRATED;
-  }
-  else
-    cache_->distortion_state = UNKNOWN;
-
-  // If necessary, create new K_ and P_ adjusted for binning and ROI
-  /// @todo Calculate and use rectified ROI
-  bool adjust_binning = (binning_x > 1) || (binning_y > 1);
-  bool adjust_roi = (roi.x_offset != 0) || (roi.y_offset != 0);
-
-  if (!adjust_binning && !adjust_roi) {
-    K_ = K_full_;
-    P_ = P_full_;
-  }
-  else {
-    K_full_.copyTo(K_);
-    P_full_.copyTo(P_);
-
-    // ROI is in full image coordinates, so change it first
-    if (adjust_roi) {
-      // Move principal point by the offset
-      /// @todo Adjust P by rectified ROI instead
-      K_(0,2) -= roi.x_offset;
-      K_(1,2) -= roi.y_offset;
-      P_(0,2) -= roi.x_offset;
-      P_(1,2) -= roi.y_offset;
-    }
-
-    if (binning_x > 1) {
-      double scale_x = 1.0 / binning_x;
-      K_(0,0) *= scale_x;
-      K_(0,2) *= scale_x;
-      P_(0,0) *= scale_x;
-      P_(0,2) *= scale_x;
-      P_(0,3) *= scale_x;
-    }
-    if (binning_y > 1) {
-      double scale_y = 1.0 / binning_y;
-      K_(1,1) *= scale_y;
-      K_(1,2) *= scale_y;
-      P_(1,1) *= scale_y;
-      P_(1,2) *= scale_y;
-      P_(1,3) *= scale_y;
-    }
-  }
-
-  return reduced_dirty;
-}
-
-bool PinholeCameraModel::fromCameraInfo(const sensor_msgs::CameraInfoConstPtr& msg)
-{
-  return fromCameraInfo(*msg);
-}
-
-void PinholeCameraModel::project3dToPixel(const cv::Point3d& xyz, cv::Point2d& uv_rect) const
+void PinholeCameraModel::project3dToPixel(const Eigen::Vector3d& xyz, Eigen::Vector2d& uv_rect) const
 {
   uv_rect = project3dToPixel(xyz);
 }
@@ -170,7 +81,7 @@ void PinholeCameraModel::project3dToPixel(const cv::Point3d& xyz, cv::Point2d& u
 cv::Size PinholeCameraModel::fullResolution() const
 {
   assert( initialized() );
-  return cv::Size(cam_info_.width, cam_info_.height);
+  return cv::Size(width_, height_);
 }
 
 cv::Size PinholeCameraModel::reducedResolution() const
@@ -181,11 +92,11 @@ cv::Size PinholeCameraModel::reducedResolution() const
   return cv::Size(roi.width / binningX(), roi.height / binningY());
 }
 
-cv::Point2d PinholeCameraModel::toFullResolution(const cv::Point2d& uv_reduced) const
+Eigen::Vector2d PinholeCameraModel::toFullResolution(const Eigen::Vector2d& uv_reduced) const
 {
   cv::Rect roi = rectifiedRoi();
-  return cv::Point2d(uv_reduced.x * binningX() + roi.x,
-                     uv_reduced.y * binningY() + roi.y);
+  return Eigen::Vector2d(uv_reduced.x() * binningX() + roi.x,
+                         uv_reduced.y() * binningY() + roi.y);
 }
 
 cv::Rect PinholeCameraModel::toFullResolution(const cv::Rect& roi_reduced) const
@@ -197,11 +108,11 @@ cv::Rect PinholeCameraModel::toFullResolution(const cv::Rect& roi_reduced) const
                   roi_reduced.height * binningY());
 }
 
-cv::Point2d PinholeCameraModel::toReducedResolution(const cv::Point2d& uv_full) const
+Eigen::Vector2d PinholeCameraModel::toReducedResolution(const Eigen::Vector2d& uv_full) const
 {
   cv::Rect roi = rectifiedRoi();
-  return cv::Point2d((uv_full.x - roi.x) / binningX(),
-                     (uv_full.y - roi.y) / binningY());
+  return Eigen::Vector2d((uv_full.x() - roi.x) / binningX(),
+                     (uv_full.y() - roi.y) / binningY());
 }
 
 cv::Rect PinholeCameraModel::toReducedResolution(const cv::Rect& roi_full) const
@@ -217,8 +128,9 @@ cv::Rect PinholeCameraModel::rawRoi() const
 {
   assert( initialized() );
 
-  return cv::Rect(cam_info_.roi.x_offset, cam_info_.roi.y_offset,
-                  cam_info_.roi.width, cam_info_.roi.height);
+  return cv::Rect(0,0,width_,height_);
+  //  return cv::Rect(cam_info_.roi.x()_offset, cam_info_.roi.y_offset,
+  //                  cam_info_.roi.width, cam_info_.roi.height);
 }
 
 cv::Rect PinholeCameraModel::rectifiedRoi() const
@@ -227,42 +139,41 @@ cv::Rect PinholeCameraModel::rectifiedRoi() const
   
   if (cache_->rectified_roi_dirty)
   {
-    if (!cam_info_.roi.do_rectify)
-      cache_->rectified_roi = rawRoi();
-    else
-      cache_->rectified_roi = rectifyRoi(rawRoi());
-    cache_->rectified_roi_dirty = false;
+    //    if (!cam_info_.roi.do_rectify)
+    //      cache_->rectified_roi = rawRoi();
+    //    else
+    //      cache_->rectified_roi = rectifyRoi(rawRoi());
+    //    cache_->rectified_roi_dirty = false;
   }
   return cache_->rectified_roi;
 }
 
-cv::Point2d PinholeCameraModel::project3dToPixel(const cv::Point3d& xyz) const
+Eigen::Vector2d PinholeCameraModel::project3dToPixel(const Eigen::Vector3d& xyz) const
 {
   assert( initialized() );
-  assert(P_(2, 3) == 0.0); // Calibrated stereo cameras should be in the same plane
 
   // [U V W]^T = P * [X Y Z 1]^T
   // u = U/W
   // v = V/W
-  cv::Point2d uv_rect;
-  uv_rect.x = (fx()*xyz.x + Tx()) / xyz.z + cx();
-  uv_rect.y = (fy()*xyz.y + Ty()) / xyz.z + cy();
+  Eigen::Vector2d uv_rect;
+  uv_rect.x() = (fx()*xyz.x()) / xyz.z() + cx();
+  uv_rect.y() = (fy()*xyz.y()) / xyz.z() + cy();
   return uv_rect;
 }
 
-void PinholeCameraModel::projectPixelTo3dRay(const cv::Point2d& uv_rect, cv::Point3d& ray) const
+void PinholeCameraModel::projectPixelTo3dRay(const Eigen::Vector2d& uv_rect, Eigen::Vector3d& ray) const
 {
   ray = projectPixelTo3dRay(uv_rect);
 }
 
-cv::Point3d PinholeCameraModel::projectPixelTo3dRay(const cv::Point2d& uv_rect) const
+Eigen::Vector3d PinholeCameraModel::projectPixelTo3dRay(const Eigen::Vector2d& uv_rect) const
 {
   assert( initialized() );
 
-  cv::Point3d ray;
-  ray.x = (uv_rect.x - cx() - Tx()) / fx();
-  ray.y = (uv_rect.y - cy() - Ty()) / fy();
-  ray.z = 1.0;
+  Eigen::Vector3d ray;
+  ray.x() = (uv_rect.x() - cx()) / fx();
+  ray.y() = (uv_rect.y() - cy()) / fy();
+  ray.z() = 1.0;
   return ray;
 }
 
@@ -280,7 +191,7 @@ void PinholeCameraModel::rectifyImage(const cv::Mat& raw, cv::Mat& rectified, in
       break;
     default:
       assert(cache_->distortion_state == UNKNOWN);
-      throw Exception("Cannot call rectifyImage when distortion is unknown.");
+      throw std::runtime_error("Cannot call rectifyImage when distortion is unknown.");
   }
 }
 
@@ -288,7 +199,7 @@ void PinholeCameraModel::unrectifyImage(const cv::Mat& rectified, cv::Mat& raw, 
 {
   assert( initialized() );
 
-  throw Exception("PinholeCameraModel::unrectifyImage is unimplemented.");
+  throw std::runtime_error("PinholeCameraModel::unrectifyImage is unimplemented.");
   /// @todo Implement unrectifyImage()
   // Similar to rectifyImage, but need to build separate set of inverse maps (raw->rectified)...
   // - Build src_pt Mat with all the raw pixel coordinates (or do it one row at a time)
@@ -298,42 +209,48 @@ void PinholeCameraModel::unrectifyImage(const cv::Mat& rectified, cv::Mat& raw, 
   // Need interpolation argument. Same caching behavior?
 }
 
-void PinholeCameraModel::rectifyPoint(const cv::Point2d& uv_raw, cv::Point2d& uv_rect) const
+void PinholeCameraModel::rectifyPoint(const Eigen::Vector2d& uv_raw, Eigen::Vector2d& uv_rect) const
 {
   uv_rect = rectifyPoint(uv_raw);
 }
 
-cv::Point2d PinholeCameraModel::rectifyPoint(const cv::Point2d& uv_raw) const
+Eigen::Vector2d PinholeCameraModel::rectifyPoint(const Eigen::Vector2d& uv_raw) const
 {
   assert( initialized() );
 
   if (cache_->distortion_state == NONE)
     return uv_raw;
   if (cache_->distortion_state == UNKNOWN)
-    throw Exception("Cannot call rectifyPoint when distortion is unknown.");
+    throw std::runtime_error("Cannot call rectifyPoint when distortion is unknown.");
   assert(cache_->distortion_state == CALIBRATED);
 
+  // convert Eigen matrix to OpenCV matrix
+  cv::Mat K = EigenToCV(K_);
+  cv::Mat Kp = EigenToCV(Kp_);
+  cv::Mat R = EigenToCV(R_);
+  cv::Mat D = EigenToCV(D_);
+
   /// @todo cv::undistortPoints requires the point data to be float, should allow double
-  cv::Point2f raw32 = uv_raw, rect32;
-  const cv::Mat src_pt(1, 1, CV_32FC2, &raw32.x);
-  cv::Mat dst_pt(1, 1, CV_32FC2, &rect32.x);
-  cv::undistortPoints(src_pt, dst_pt, K_, D_, R_, P_);
-  return rect32;
+  Eigen::Vector2d rect;
+  const cv::Mat src_pt(1, 1, CV_64FC2, (void *)uv_raw.data());
+  cv::Mat dst_pt(1, 1, CV_64FC2, (void *)rect.data());
+  cv::undistortPoints(src_pt, dst_pt, K, D, R, Kp);
+  return rect;
 }
 
-void PinholeCameraModel::unrectifyPoint(const cv::Point2d& uv_rect, cv::Point2d& uv_raw) const
+void PinholeCameraModel::unrectifyPoint(const Eigen::Vector2d& uv_rect, Eigen::Vector2d& uv_raw) const
 {
   uv_raw = unrectifyPoint(uv_rect);
 }
 
-cv::Point2d PinholeCameraModel::unrectifyPoint(const cv::Point2d& uv_rect) const
+Eigen::Vector2d PinholeCameraModel::unrectifyPoint(const Eigen::Vector2d& uv_rect) const
 {
   assert( initialized() );
 
   if (cache_->distortion_state == NONE)
     return uv_rect;
   if (cache_->distortion_state == UNKNOWN)
-    throw Exception("Cannot call unrectifyPoint when distortion is unknown.");
+    throw std::runtime_error("Cannot call unrectifyPoint when distortion is unknown.");
   assert(cache_->distortion_state == CALIBRATED);
 
   /// @todo Make this just call projectPixelTo3dRay followed by cv::projectPoints. But
@@ -345,8 +262,8 @@ cv::Point2d PinholeCameraModel::unrectifyPoint(const cv::Point2d& uv_rect) const
   // x <- (u - c'x) / f'x
   // y <- (v - c'y) / f'y
   // c'x, f'x, etc. (primed) come from "new camera matrix" P[0:3, 0:3].
-  double x = (uv_rect.x - cx() - Tx()) / fx();
-  double y = (uv_rect.y - cy() - Ty()) / fy();
+  double x = (uv_rect.x() - cx()) / fx();
+  double y = (uv_rect.y() - cy()) / fy();
   // [X Y W]^T <- R^-1 * [x y 1]^T
   double X = R_(0,0)*x + R_(1,0)*y + R_(2,0);
   double Y = R_(0,1)*x + R_(1,1)*y + R_(2,1);
@@ -363,14 +280,14 @@ cv::Point2d PinholeCameraModel::unrectifyPoint(const cv::Point2d& uv_rect) const
   double a1 = 2*xp*yp;
   double k1 = D_(0,0), k2 = D_(0,1), p1 = D_(0,2), p2 = D_(0,3), k3 = D_(0,4);
   double barrel_correction = 1 + k1*r2 + k2*r4 + k3*r6;
-  if (D_.cols == 8)
+  if (D_.cols() == 8)
     barrel_correction /= (1.0 + D_(0,5)*r2 + D_(0,6)*r4 + D_(0,7)*r6);
   double xpp = xp*barrel_correction + p1*a1 + p2*(r2+2*(xp*xp));
   double ypp = yp*barrel_correction + p1*(r2+2*(yp*yp)) + p2*a1;
   // map_x(u,v) <- x''fx + cx
   // map_y(u,v) <- y''fy + cy
   // cx, fx, etc. come from original camera matrix K.
-  return cv::Point2d(xpp*K_(0,0) + K_(0,2), ypp*K_(1,1) + K_(1,2));
+  return Eigen::Vector2d(xpp*K_(0,0) + K_(0,2), ypp*K_(1,1) + K_(1,2));
 }
 
 cv::Rect PinholeCameraModel::rectifyRoi(const cv::Rect& roi_raw) const
@@ -380,16 +297,16 @@ cv::Rect PinholeCameraModel::rectifyRoi(const cv::Rect& roi_raw) const
   /// @todo Actually implement "best fit" as described by REP 104.
   
   // For now, just unrectify the four corners and take the bounding box.
-  cv::Point2d rect_tl = rectifyPoint(cv::Point2d(roi_raw.x, roi_raw.y));
-  cv::Point2d rect_tr = rectifyPoint(cv::Point2d(roi_raw.x + roi_raw.width, roi_raw.y));
-  cv::Point2d rect_br = rectifyPoint(cv::Point2d(roi_raw.x + roi_raw.width,
+  Eigen::Vector2d rect_tl = rectifyPoint(Eigen::Vector2d(roi_raw.x, roi_raw.y));
+  Eigen::Vector2d rect_tr = rectifyPoint(Eigen::Vector2d(roi_raw.x + roi_raw.width, roi_raw.y));
+  Eigen::Vector2d rect_br = rectifyPoint(Eigen::Vector2d(roi_raw.x + roi_raw.width,
                                                  roi_raw.y + roi_raw.height));
-  cv::Point2d rect_bl = rectifyPoint(cv::Point2d(roi_raw.x, roi_raw.y + roi_raw.height));
+  Eigen::Vector2d rect_bl = rectifyPoint(Eigen::Vector2d(roi_raw.x, roi_raw.y + roi_raw.height));
 
-  cv::Point roi_tl(std::ceil (std::min(rect_tl.x, rect_bl.x)),
-                   std::ceil (std::min(rect_tl.y, rect_tr.y)));
-  cv::Point roi_br(std::floor(std::max(rect_tr.x, rect_br.x)),
-                   std::floor(std::max(rect_bl.y, rect_br.y)));
+  cv::Point roi_tl(std::ceil (std::min(rect_tl.x(), rect_bl.x())),
+                   std::ceil (std::min(rect_tl.y(), rect_tr.y())));
+  cv::Point roi_br(std::floor(std::max(rect_tr.x(), rect_br.x())),
+                   std::floor(std::max(rect_bl.y(), rect_br.y())));
 
   return cv::Rect(roi_tl.x, roi_tl.y, roi_br.x - roi_tl.x, roi_br.y - roi_tl.y);
 }
@@ -401,16 +318,16 @@ cv::Rect PinholeCameraModel::unrectifyRoi(const cv::Rect& roi_rect) const
   /// @todo Actually implement "best fit" as described by REP 104.
   
   // For now, just unrectify the four corners and take the bounding box.
-  cv::Point2d raw_tl = unrectifyPoint(cv::Point2d(roi_rect.x, roi_rect.y));
-  cv::Point2d raw_tr = unrectifyPoint(cv::Point2d(roi_rect.x + roi_rect.width, roi_rect.y));
-  cv::Point2d raw_br = unrectifyPoint(cv::Point2d(roi_rect.x + roi_rect.width,
+  Eigen::Vector2d raw_tl = unrectifyPoint(Eigen::Vector2d(roi_rect.x, roi_rect.y));
+  Eigen::Vector2d raw_tr = unrectifyPoint(Eigen::Vector2d(roi_rect.x + roi_rect.width, roi_rect.y));
+  Eigen::Vector2d raw_br = unrectifyPoint(Eigen::Vector2d(roi_rect.x + roi_rect.width,
                                                   roi_rect.y + roi_rect.height));
-  cv::Point2d raw_bl = unrectifyPoint(cv::Point2d(roi_rect.x, roi_rect.y + roi_rect.height));
+  Eigen::Vector2d raw_bl = unrectifyPoint(Eigen::Vector2d(roi_rect.x, roi_rect.y + roi_rect.height));
 
-  cv::Point roi_tl(std::floor(std::min(raw_tl.x, raw_bl.x)),
-                   std::floor(std::min(raw_tl.y, raw_tr.y)));
-  cv::Point roi_br(std::ceil (std::max(raw_tr.x, raw_br.x)),
-                   std::ceil (std::max(raw_bl.y, raw_br.y)));
+  cv::Point roi_tl(std::floor(std::min(raw_tl.x(), raw_bl.x())),
+                   std::floor(std::min(raw_tl.y(), raw_tr.y())));
+  cv::Point roi_br(std::ceil (std::max(raw_tr.x(), raw_br.x())),
+                   std::ceil (std::max(raw_bl.y(), raw_br.y())));
 
   return cv::Rect(roi_tl.x, roi_tl.y, roi_br.x - roi_tl.x, roi_br.y - roi_tl.y);
 }
@@ -427,45 +344,48 @@ void PinholeCameraModel::initRectificationMaps() const
     binned_resolution.width  /= binningX();
     binned_resolution.height /= binningY();
 
-    cv::Mat_<double> K_binned, P_binned;
+    Eigen::Matrix3d K_binned, Kp_binned;
     if (binningX() == 1 && binningY() == 1) {
       K_binned = K_full_;
-      P_binned = P_full_;
+      Kp_binned = Kp_full_;
     }
     else {
-      K_full_.copyTo(K_binned);
-      P_full_.copyTo(P_binned);
+      K_binned = K_full_;
+      Kp_binned = Kp_full_;
       if (binningX() > 1) {
         double scale_x = 1.0 / binningX();
         K_binned(0,0) *= scale_x;
         K_binned(0,2) *= scale_x;
-        P_binned(0,0) *= scale_x;
-        P_binned(0,2) *= scale_x;
-        P_binned(0,3) *= scale_x;
+        Kp_binned(0,0) *= scale_x;
+        Kp_binned(0,2) *= scale_x;
       }
       if (binningY() > 1) {
         double scale_y = 1.0 / binningY();
         K_binned(1,1) *= scale_y;
         K_binned(1,2) *= scale_y;
-        P_binned(1,1) *= scale_y;
-        P_binned(1,2) *= scale_y;
-        P_binned(1,3) *= scale_y;
+        Kp_binned(1,1) *= scale_y;
+        Kp_binned(1,2) *= scale_y;
       }
     }
     
     // Note: m1type=CV_16SC2 to use fast fixed-point maps (see cv::remap)
-    cv::initUndistortRectifyMap(K_binned, D_, R_, P_binned, binned_resolution,
+    cv::Mat K = EigenToCV(K_binned);
+    cv::Mat Kp = EigenToCV(Kp_binned);
+    cv::Mat R = EigenToCV(R_);
+    cv::Mat D = EigenToCV(D_);
+    cv::initUndistortRectifyMap(K, D, R, Kp, binned_resolution,
                                 CV_16SC2, cache_->full_map1, cache_->full_map2);
     cache_->full_maps_dirty = false;
   }
 
   if (cache_->reduced_maps_dirty) {
     /// @todo Use rectified ROI
-    cv::Rect roi(cam_info_.roi.x_offset, cam_info_.roi.y_offset,
-                 cam_info_.roi.width, cam_info_.roi.height);
+    //    cv::Rect roi(cam_info_.roi.x_offset, cam_info_.roi.y_offset,
+    //                 cam_info_.roi.width, cam_info_.roi.height);
+    cv::Rect roi(0,0,width_,height_);
     if (roi.x != 0 || roi.y != 0 ||
-        roi.height != (int)cam_info_.height ||
-        roi.width  != (int)cam_info_.width) {
+        roi.height != (int)height_ ||
+        roi.width  != (int)width_) {
 
       // map1 contains integer (x,y) offsets, which we adjust by the ROI offset
       // map2 contains LUT index for subpixel interpolation, which we can leave as-is
