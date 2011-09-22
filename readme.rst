@@ -24,6 +24,7 @@ requires
 * cmake
 * Eigen3 http://eigen.tuxfamily.org/
 * OpenCV > 2.3 http://opencv.willowgarage.com/wiki/
+* *optional* gtest
 * *optional* ecto https://github.com/plasmodic/ecto
 
 build it
