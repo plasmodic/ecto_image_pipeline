@@ -13,6 +13,7 @@
 #define EIGEN_USE_NEW_STDVECTOR
 #endif // EIGEN_USE_NEW_STDVECTOR
 
+#include <boost/make_shared.hpp>
 #include <stdexcept>
 
 #define ROS_DEPRECATED
@@ -144,12 +145,12 @@ public:
   /**
    * \brief Returns the distortion coefficients.
    */
-  const Eigen::Vector<double,5,1>& distortionCoeffs() const;
+  const Eigen::VectorXd& distortionCoeffs() const;
 
   /**
    * \brief Returns the distortion coefficients.
    */
-  const Eigen::Vector<double,5,1>& rationalCoeffs() const;
+  const Eigen::Matrix<double,5,1>& rationalCoeffs() const;
 
   /**
    * \brief Returns the rotation matrix.
@@ -159,7 +160,7 @@ public:
   /**
    * \brief Returns the original camera matrix for full resolution.
    */
-  const cv::Mat_<double>& inputFullIntrinsicMatrix() const;
+  const Eigen::Matrix3d& inputFullIntrinsicMatrix() const;
 
   /**
    * \brief Returns the focal length (pixels) in x direction of the rectified image.
@@ -244,12 +245,14 @@ public:
 protected:
   int width_, height_;               // camera resolution
   int binning_x_, binning_y_;        // image reduction
-  Eigen::Vector<double,5,1> D_;      // Distortion coefficients: k1, k2, t1, t2, k3 for Tsai model
-  Eigen::Vector<double,5,1> DD_;     // Distortion coefficients, denominator, for rational model
+  Eigen::VectorXd D_;                // Distortion coefficients: k1, k2, t1, t2, k3 for Tsai model (5x1),
+                                     //  8x1 for rational model
   Eigen::Matrix3d R_;                // Rotation matrix, from input to output image
   Eigen::Matrix3d K_;                // Input image camera internals
   Eigen::Matrix3d K_full_;           // Input image camera internals, full image (no binning or ROI)
   Eigen::Matrix3d Kp_;               // Output image camera internals
+  Eigen::Matrix3d Kp_full_;          // Output image camera internals, full image
+  cv::Rect rect_roi_, input_roi_;    // Region of interest for image
 
   void initRectificationMaps() const;
 
@@ -268,8 +271,7 @@ protected:
 inline const Eigen::Matrix3d& PinholeCameraModel::inputIntrinsicMatrix() const  { return K_; }
 inline const Eigen::Matrix3d& PinholeCameraModel::inputFullIntrinsicMatrix() const  { return K_full_; }
 inline const Eigen::Matrix3d& PinholeCameraModel::outputIntrinsicMatrix() const  { return Kp_; }
-inline const Eigen::Vector<double,5,1>& PinholeCameraModel::distortionCoeffs() const { return D_; }
-inline const Eigen::Vector<double,5,1>& PinholeCameraModel::rationalCoeffs() const { return DD_; }
+inline const Eigen::VectorXd& PinholeCameraModel::distortionCoeffs() const { return D_; }
 inline const Eigen::Matrix3d& PinholeCameraModel::rotationMatrix() const   { return R_; }
 
 inline double PinholeCameraModel::fx() const { return Kp_(0,0); } 
