@@ -33,6 +33,11 @@ include_directories(
 
 add_subdirectory(src)
 
+option(BUILD_ECTO_CELLS "Build ecto cells" ON)
+if(BUILD_ECTO_CELLS)
+  add_subdirectory(cells)
+endif()
+
 option(BUILD_TEST "Build tests" ON)
 if(BUILD_TEST)
   enable_testing()
