@@ -42,7 +42,8 @@ test it
 ::
 
   % cd image_pipeline/build
-  % make test
+  % make
+  % ctest -V
 
 use it
 ^^^^^^

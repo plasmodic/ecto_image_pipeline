@@ -1,9 +1,15 @@
 #include <gtest/gtest.h>
 #include <image_pipeline/image_pipeline.hpp>
-
-TEST(pinhole, Test1)
+#include <image_pipeline/pinhole_camera_model.h>
+TEST(pinhole, Bogus1)
 {
   image_pipeline::Pose p("/base");
   std::cout << p << std::endl;
   EXPECT_TRUE(p.transform.isApprox(Eigen::Affine3f::Identity()));
+}
+
+TEST(pinhole, Serialization)
+{
+  
+  EXPECT_TRUE(0 == "Fill me in.");
 }
