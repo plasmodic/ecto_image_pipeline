@@ -31,7 +31,12 @@ public:
     
   PinholeCameraModel();
 
-  PinholeCameraModel(const PinholeCameraModel& other);
+  /**
+   * \brief Set up the rectification parameters
+   *
+   * Sets the various parameters for rectification and image size
+   */
+  void setParams(cv::Size &size, Eigen::Matrix3d &K, Eigen::VectorXd &D, Eigen::Matrix3d &R, Eigen::Matrix3d &Kp);
 
   /**
    * \brief The resolution at which the camera was calibrated.

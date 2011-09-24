@@ -9,6 +9,7 @@ ectomodule(image_pipeline
    module.cpp
    CalibrationLoader.cpp
    Rectifier.cpp
+   RectifierNC.cpp
 )
 
 link_ecto(image_pipeline

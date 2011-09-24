@@ -5,7 +5,7 @@ using ecto::tendrils;
 
 namespace image_pipeline
 {
-  struct Rectifer
+  struct Rectifier
   {
     static void
     declare_params(tendrils& params)
@@ -14,8 +14,8 @@ namespace image_pipeline
     static void
     declare_io(const tendrils& params, tendrils& in, tendrils& out)
     {
-      in.declare<PinholeCameraModel>("camera", "Camera model.");
-      in.declare<cv::Mat>("image", "The input image.");
+      in.declare<PinholeCameraModel>("camera", "Camera model.").required(true);
+      in.declare<cv::Mat>("image", "The input image.").required(true);
       out.declare<cv::Mat>("image", "The rectified image.");
     }
     void
@@ -24,12 +24,17 @@ namespace image_pipeline
       camera = in["camera"]; // this is like a smart pointer to the output.
       image_in = in["image"];
       image_out = out["image"];
+      //      cv::Mat output;   // do this for non-copied output
+      //      *image_out = output;
     }
     int process(const tendrils& /*in*/, const tendrils& /*out*/)
     {
       cv::Mat output;
       camera->rectifyImage(*image_in,output);
       *image_out = output;
+
+      camera->rectifyImage(*image_in,*image_out);
+
       return ecto::OK;
     }
     ecto::spore<PinholeCameraModel> camera;
@@ -38,5 +43,5 @@ namespace image_pipeline
   };
 }
 
-ECTO_CELL(image_pipeline, image_pipeline::Rectifer, "Rectifer",
+ECTO_CELL(image_pipeline, image_pipeline::Rectifier, "Rectifier",
           "Given a PinholeCameraModel, rectify the input image.");

@@ -1,6 +1,7 @@
 #include "image_pipeline/pinhole_camera_model.h"
 #include <boost/make_shared.hpp>
 #include <exception>
+#include <iostream>
 
 namespace image_pipeline {
 
@@ -10,9 +11,11 @@ namespace image_pipeline {
 template<typename MatT>
 cv::Mat EigenToCV(const MatT &m)
 {
-  MatT mt = m.transpose();
-  cv::Mat mcv(m.rows(),m.cols(),CV_64F,(void *)mt.data());
-  return mcv;
+  cv::Mat mm(m.rows(),m.cols(),CV_64F);
+  for (int i=0; i<m.rows(); i++)
+    for (int j=0; j<m.cols(); j++)
+      mm.at<double>(i,j) = m(i,j);
+  return mm;
 }
 
 enum DistortionState { NONE, CALIBRATED, UNKNOWN };
@@ -42,14 +45,32 @@ struct PinholeCameraModel::Cache
 
 PinholeCameraModel::PinholeCameraModel()
 {
+  // Create our repository of cached data (rectification maps, etc.)
+  if (!cache_)
+    cache_ = boost::make_shared<Cache>();
+  cache_->distortion_state = NONE;
+  std::cout << "Pinhole model creation" << std::endl;
 }
 
-PinholeCameraModel::PinholeCameraModel(const PinholeCameraModel& other)
+// initialize the camera model
+void
+PinholeCameraModel::setParams(cv::Size &size, Eigen::Matrix3d &K, Eigen::VectorXd &D, Eigen::Matrix3d &R, Eigen::Matrix3d &Kp)
 {
-  if (other.initialized())
-    //    fromCameraInfo(other.cam_info_);
-    {}
+  width_ = size.width;
+  height_ = size.height;
+  R_ = R;
+  D_ = D;
+  K_ = K;
+  K_full_ = K;
+  Kp_ = Kp;
+  Kp_full_ = Kp;
+  binning_x_ = 1;
+  binning_y_ = 1;
+
+  cache_->distortion_state = (D(0) == 0.0) ? NONE : CALIBRATED;
+  cache_->full_maps_dirty;
 }
+
 
 // For uint32_t, string, bool...
 template<typename T>
@@ -68,7 +89,7 @@ bool updateMat(const MatT& new_mat, MatT& my_mat, cv::Mat_<double>& cv_mat, int 
   if (my_mat == new_mat)
     return false;
   my_mat = new_mat;
-  // D may be empty if camera is uncalibrated or distortion model is non-standard
+  // D may be empty if camera is uncalibrated or distortion model is non-standard&
   cv_mat = (my_mat.size() == 0) ? cv::Mat_<double>() : cv::Mat_<double>(rows, cols, &my_mat[0]);
   return true;
 }
@@ -373,6 +394,11 @@ void PinholeCameraModel::initRectificationMaps() const
     cv::Mat Kp = EigenToCV(Kp_binned);
     cv::Mat R = EigenToCV(R_);
     cv::Mat D = EigenToCV(D_);
+
+    std::cout << K << std::endl;
+    std::cout << R << std::endl;
+    std::cout << D << std::endl << std::endl;
+
     cv::initUndistortRectifyMap(K, D, R, Kp, binned_resolution,
                                 CV_16SC2, cache_->full_map1, cache_->full_map2);
     cache_->full_maps_dirty = false;
