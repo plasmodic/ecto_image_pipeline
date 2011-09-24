@@ -5,7 +5,7 @@ TEST(pinhole, Bogus1)
 {
   image_pipeline::Pose p("/base");
   std::cout << p << std::endl;
-  EXPECT_TRUE(p.transform.isApprox(Eigen::Affine3f::Identity()));
+  EXPECT_TRUE(p.transform.isApprox(Eigen::Affine3d::Identity()));
 }
 
 TEST(pinhole, Serialization)

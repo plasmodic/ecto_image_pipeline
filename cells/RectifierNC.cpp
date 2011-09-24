@@ -38,5 +38,5 @@ namespace image_pipeline
   };
 }
 
-ECTO_CELL(image_pipeline, image_pipeline::RectifierNC, "Rectifier",
+ECTO_CELL(image_pipeline, image_pipeline::RectifierNC, "RectifierNC",
           "Given a PinholeCameraModel, rectify the input image; output reuses buffer");

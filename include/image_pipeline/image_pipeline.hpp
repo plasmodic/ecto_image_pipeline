@@ -13,15 +13,15 @@ namespace image_pipeline
   struct Pose //For now this is just bogus.. to test the libs.
   {
     explicit Pose(const std::string& frame_id = "",
-                  const Eigen::Affine3f transform = Eigen::Affine3f::Identity()
+                  const Eigen::Affine3d transform = Eigen::Affine3d::Identity()
                   );
 
     std::string frame_id;
-    Eigen::Affine3f transform;
+    Eigen::Affine3d transform;
 
     friend std::ostream&
     operator<<(std::ostream& out, const image_pipeline::Pose& p);
-    void toRT(cv::Mat_<float>& R, cv::Mat_<float>& T);
+    void toRT(Eigen::Matrix3d& R, Eigen::Vector3d& T);
   };
   
 }

@@ -216,6 +216,62 @@ void PinholeCameraModel::rectifyImage(const cv::Mat& raw, cv::Mat& rectified, in
   }
 }
 
+
+void PinholeCameraModel::registerDepthImage(const cv::Mat& raw, 
+                                            const PinholeCameraModel& pm,
+                                            cv::Mat& registered, 
+                                            double metric) const
+{
+  assert( initialized() );
+
+  // create reprojection matrix Q
+  Eigen::Matrix4d Q;
+  Q << 1,0,0,-pm.cx(), 0,1,0,-pm.cy(), 0,0,0,pm.fx(), 0,0,pm.fx(),0;
+  // form the extended camera matrix [K 0; 0 1]
+  Eigen::Matrix4d K;
+  K.setIdentity();
+  K.block(0,0,3,3) = Kp_;  // camera matrix
+  // form the projection matrix via concatenation
+  Eigen::Matrix4d P;
+  Eigen::Matrix4f Pf;
+  P = K*P_.transform.matrix()*Q;
+  Pf = P.cast<float>();
+
+  // for each element of the depth image, transform to output image
+  // set output matrix size and zero it
+  // we have to unfortunately assume the type is CV_16UC to get access
+  registered.create(raw.rows,raw.cols,raw.type());
+  registered.setTo(0);
+  float im = 1.0 / metric;
+  int rows = registered.rows;
+  int cols = registered.cols;
+  for (int i=0; i<rows; i++)
+    for (int j=0; j<cols; j++)
+      {
+        int d = raw.at<uint16_t>(i,j);
+        if (d > 0)
+          {
+            Eigen::Vector4f v;
+            v << (float)j,(float)i,im/(float)d,1.0f;
+            Eigen::Vector4f vp = Pf*v;          // transformed
+            if (vp(3) > 0.0)
+              {
+                uint16_t z = (uint16_t)(im * vp(2)/vp(3));
+                int u = (int)(vp(0)/vp(2)+0.5);
+                int v = (int)(vp(1)/vp(2)+0.5);
+                if (u > 0 && u < cols && v > 0 && v < rows)
+                  {
+                    int zz = registered.at<uint16_t>(v,u);
+                    if (z < zz || zz == 0) // check Z buffer
+                      registered.at<uint16_t>(v,u) = z;
+                  }
+
+              }
+          }
+      }
+}
+
+
 void PinholeCameraModel::unrectifyImage(const cv::Mat& rectified, cv::Mat& raw, int interpolation) const
 {
   assert( initialized() );
