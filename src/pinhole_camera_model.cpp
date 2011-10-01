@@ -500,7 +500,10 @@ void PinholeCameraModel::readCalibration(std::string calibfile)
   else
     {
       cv2eigen(D,De);
-      D_ = De.transpose();
+      if (De.rows() == 1)
+        D_ = De.transpose();
+      else
+        D_ = De;
     }
 
   if (R.empty())
@@ -528,15 +531,18 @@ void PinholeCameraModel::writeCalibration(std::string calibfile) const
   cv::eigen2cv(P_.transform.matrix(),P);
 
   cvWriteComment(*fs, "Camera", 0);
+
+  fs << "width" << width_;
+  fs << "height" << height_;
+
   if (!K.empty())
     fs << "K" << K;
   if (!D.empty())
     fs << "D" << D;
   if (!R.empty())
     fs << "R" << R;
-  fs << "width" << width_;
-  fs << "height" << height_;
-
+  if (!P.empty())
+    fs << "P" << P;
 }
 
 
