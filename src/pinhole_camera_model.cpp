@@ -3,20 +3,10 @@
 #include <exception>
 #include <iostream>
 
-namespace image_pipeline {
+#include <opencv2/core/eigen.hpp>
 
-// convert from Eigen to CV matrix
-// copies the data
-// note conversion from column to row major
-template<typename MatT>
-cv::Mat EigenToCV(const MatT &m)
-{
-  cv::Mat mm(m.rows(),m.cols(),CV_64F);
-  for (int i=0; i<m.rows(); i++)
-    for (int j=0; j<m.cols(); j++)
-      mm.at<double>(i,j) = m(i,j);
-  return mm;
-}
+
+namespace image_pipeline {
 
 enum DistortionState { NONE, CALIBRATED, UNKNOWN };
 
@@ -302,10 +292,11 @@ Eigen::Vector2d PinholeCameraModel::rectifyPoint(const Eigen::Vector2d& uv_raw) 
   assert(cache_->distortion_state == CALIBRATED);
 
   // convert Eigen matrix to OpenCV matrix
-  cv::Mat K = EigenToCV(K_);
-  cv::Mat Kp = EigenToCV(Kp_);
-  cv::Mat R = EigenToCV(R_);
-  cv::Mat D = EigenToCV(D_);
+  cv::Mat K, Kp, R, D;
+  cv::eigen2cv(K_,K);
+  cv::eigen2cv(D_,D);
+  cv::eigen2cv(Kp_,Kp);
+  cv::eigen2cv(R_,R);
 
   /// @todo cv::undistortPoints requires the point data to be float, should allow double
   Eigen::Vector2d rect;
@@ -446,10 +437,11 @@ void PinholeCameraModel::initRectificationMaps() const
     }
     
     // Note: m1type=CV_16SC2 to use fast fixed-point maps (see cv::remap)
-    cv::Mat K = EigenToCV(K_binned);
-    cv::Mat Kp = EigenToCV(Kp_binned);
-    cv::Mat R = EigenToCV(R_);
-    cv::Mat D = EigenToCV(D_);
+    cv::Mat K, Kp, R, D;
+    cv::eigen2cv(K_,K);
+    cv::eigen2cv(D_,D);
+    cv::eigen2cv(Kp_,Kp);
+    cv::eigen2cv(R_,R);
 
     std::cout << K << std::endl;
     std::cout << R << std::endl;
@@ -486,5 +478,66 @@ void PinholeCameraModel::initRectificationMaps() const
     cache_->reduced_maps_dirty = false;
   }
 }
+
+void PinholeCameraModel::readCalibration(std::string calibfile)
+{
+  cv::FileStorage fs(calibfile, cv::FileStorage::READ);
+  CV_Assert(fs.isOpened());
+  cv::Mat K,Kp,R,D,P;
+  cv::read(fs["camera_matrix"], K, cv::Mat());
+  cv::read(fs["distortion_coefficients"], D, cv::Mat());
+  cv::read(fs["rotation_matrix"], R, cv::Mat());
+  cv::read(fs["pose_3d"], P, cv::Mat());
+  cv::read(fs["image_width"], width_, 0);
+  cv::read(fs["image_height"], height_, 0);
+
+  CV_Assert(K.empty() == false);
+  cv2eigen(K,K_);
+
+  Eigen::MatrixXd De;
+  if (D.empty())
+    D_.setZero();
+  else
+    {
+      cv2eigen(D,De);
+      D_ = De.transpose();
+    }
+
+  if (R.empty())
+    R_.setIdentity();
+  else
+    cv2eigen(R,R_);
+
+  Eigen::Matrix4d Pe;
+  if (P.empty())
+    Pe.setIdentity();
+  else
+    cv2eigen(P,Pe);
+  P_ = Pose("",Eigen::Affine3d(Pe));
+}
+
+void PinholeCameraModel::writeCalibration(std::string calibfile) const
+{
+  cv::FileStorage fs(calibfile, cv::FileStorage::WRITE);
+  CV_Assert(fs.isOpened());
+  cv::Mat K,Kp,R,D,P;
+  cv::eigen2cv(K_,K);
+  cv::eigen2cv(D_,D);
+  cv::eigen2cv(Kp_,Kp);
+  cv::eigen2cv(R_,R);
+  cv::eigen2cv(P_.transform.matrix(),P);
+
+  cvWriteComment(*fs, "Camera", 0);
+  if (!K.empty())
+    fs << "K" << K;
+  if (!D.empty())
+    fs << "D" << D;
+  if (!R.empty())
+    fs << "R" << R;
+  fs << "width" << width_;
+  fs << "height" << height_;
+
+}
+
 
 } //namespace image_geometry

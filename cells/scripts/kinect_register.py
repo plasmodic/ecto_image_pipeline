@@ -21,7 +21,8 @@ def kinect_vga(device_n):
                    device_number=device_n,
                    registration=False,
                    synchronize=False,
-                   device=Device.KINECT
+#                   device=Device.KINECT
+                   device=Device.ASUS_XTION_PRO_LIVE
                    )
 
 kcap = kinect_vga(0);
@@ -44,12 +45,12 @@ plasm.connect(
     )
 
 #display stuff
-# plasm.connect(
-#      rect_rgb['image'] >> imshow(name='Rectified RGB')['image'],
-#      rect_depth['image'] >> imshow(name='Rectified Depth')['image'],
-#      verter['image'] >> imshow(name='Original')['image'],
-#      reg_depth['image'] >> imshow(name='Registered Depth')['image']
-#      )
+plasm.connect(
+      rect_rgb['image'] >> imshow(name='Rectified RGB')['image'],
+      rect_depth['image'] >> imshow(name='Rectified Depth')['image'],
+      verter['image'] >> imshow(name='Original')['image'],
+      reg_depth['image'] >> imshow(name='Registered Depth')['image']
+      )
 
 #plasm.insert(kcap)
 

@@ -261,6 +261,22 @@ public:
    */
   double getDeltaY(double deltaV, double Z) const;
   
+  /**
+   * \brief Read a calibration file in YAML format
+   *
+   *
+   * \param filename Name of the file to read
+   */
+  void readCalibration(std::string filename);
+
+  /**
+   * \brief Write a calibration file in YAML format
+   *
+   *
+   * \param filename Name of the file to read
+   */
+  void writeCalibration(std::string filename) const;
+
 protected:
   int width_, height_;               // camera resolution
   int binning_x_, binning_y_;        // image reduction

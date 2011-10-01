@@ -36,10 +36,12 @@ namespace image_pipeline
       cv::Size s(640,480);
       cam.setParams(s,K,D,R,K);
 
-      *camera = cam;
-
       std::string filename;
       params["filename"] >> filename;
+      cam.readCalibration(filename);
+      cam.writeCalibration("xx.yml");
+      *camera = cam;
+
       std::cout << "Config of Cal Loader" << std::endl;
       //TODO load the camera from file.
       //load(*camera, filename);
