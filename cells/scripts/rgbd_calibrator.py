@@ -30,6 +30,6 @@ plasm.connect(video['image'] >> (pattern_drawer['input'], image_writer['image'],
               pattern_detector['out', 'found'] >> pattern_drawer['points', 'found'],
               )
 
-if __name__ == '__main__':
-    from ecto.opts import doit
-    doit(plasm, description='Calibrate a camera using a pattern.')
+sched = ecto.schedulers.Singlethreaded(plasm)
+sched.execute()
+

@@ -46,8 +46,7 @@ namespace image_pipeline
     {
       image_in = in["image"];
       found = in["found"];
-      params["filename"] >> filename;
-
+      filename = params["filename"];
     }
 
     int process(const tendrils& /*in*/, const tendrils& /*out*/)
@@ -70,7 +69,7 @@ namespace image_pipeline
 	  if (*found)
 	    {
 	      std::cout << "Writing file to " << filename << std::endl;	
-	      cv::imwrite(filename, *image_in);
+	      cv::imwrite(*filename, *image_in);
 	      return ecto::QUIT;
 	    }
 	}
@@ -80,7 +79,7 @@ namespace image_pipeline
 
     ecto::spore<bool> found;
     ecto::spore<cv::Mat> image_in;
-    std::string filename;
+    ecto::spore<std::string> filename;
 
   };
 }
