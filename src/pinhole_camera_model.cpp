@@ -484,10 +484,10 @@ void PinholeCameraModel::readCalibration(std::string calibfile)
   cv::FileStorage fs(calibfile, cv::FileStorage::READ);
   CV_Assert(fs.isOpened());
   cv::Mat K,Kp,R,D,P;
-  cv::read(fs["camera_matrix"], K, cv::Mat());
+  cv::read(fs["input_camera_matrix"], K, cv::Mat());
   cv::read(fs["distortion_coefficients"], D, cv::Mat());
   cv::read(fs["rotation_matrix"], R, cv::Mat());
-  cv::read(fs["pose_3d"], P, cv::Mat());
+  cv::read(fs["rectified_camera_matrix"], Kp, cv::Mat());
   cv::read(fs["image_width"], width_, 0);
   cv::read(fs["image_height"], height_, 0);
 
@@ -510,15 +510,11 @@ void PinholeCameraModel::readCalibration(std::string calibfile)
     R_.setIdentity();
   else
     cv2eigen(R,R_);
-
-  Eigen::Matrix4d Pe;
-  if (P.empty())
-    Pe.setIdentity();
-  else
-    cv2eigen(P,Pe);
-  P_ = Pose("",Eigen::Affine3d(Pe));
 }
 
+//
+// Store all the parameters
+//
 void PinholeCameraModel::writeCalibration(std::string calibfile) const
 {
   cv::FileStorage fs(calibfile, cv::FileStorage::WRITE);
@@ -528,21 +524,20 @@ void PinholeCameraModel::writeCalibration(std::string calibfile) const
   cv::eigen2cv(D_,D);
   cv::eigen2cv(Kp_,Kp);
   cv::eigen2cv(R_,R);
-  cv::eigen2cv(P_.transform.matrix(),P);
 
   cvWriteComment(*fs, "Camera", 0);
 
-  fs << "width" << width_;
-  fs << "height" << height_;
+  fs << "image_width" << width_;
+  fs << "image_height" << height_;
 
   if (!K.empty())
-    fs << "K" << K;
+    fs << "input_camera_matrix" << K;
   if (!D.empty())
-    fs << "D" << D;
+    fs << "distortion_coefficients" << D;
   if (!R.empty())
-    fs << "R" << R;
-  if (!P.empty())
-    fs << "P" << P;
+    fs << "rotation_matrix" << R;
+  if (!Kp.empty())
+    fs << "rectified_camera_matrix" << R;
 }
 
 

@@ -1,5 +1,5 @@
-#ifndef IMAGE_GEOMETRY_PINHOLE_CAMERA_MODEL_H
-#define IMAGE_GEOMETRY_PINHOLE_CAMERA_MODEL_H
+#ifndef IMAGE_PIPELINE_PINHOLE_CAMERA_MODEL_H
+#define IMAGE_PIPELINE_PINHOLE_CAMERA_MODEL_H
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -20,8 +20,7 @@
 namespace image_pipeline {
 
 /**
- * \brief Simplifies interpreting images geometrically using the parameters from
- * sensor_msgs/CameraInfo.
+ * \brief Parameter definitions for monocular pinhole cameras
  */
 class PinholeCameraModel
 {
