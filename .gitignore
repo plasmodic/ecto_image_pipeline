@@ -1,3 +1,8 @@
+*.orig
+*BASE*
+*BACKUP*
+*REMOTE*
+*LOCAL*
 *#
 .*
 *~
