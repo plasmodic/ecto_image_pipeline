@@ -39,7 +39,6 @@ PinholeCameraModel::PinholeCameraModel()
   if (!cache_)
     cache_ = boost::make_shared<Cache>();
   cache_->distortion_state = NONE;
-  std::cout << "Pinhole model creation" << std::endl;
 }
 
 // initialize the camera model
@@ -442,10 +441,10 @@ void PinholeCameraModel::initRectificationMaps() const
     cv::eigen2cv(D_,D);
     cv::eigen2cv(Kp_,Kp);
     cv::eigen2cv(R_,R);
-
-    std::cout << K << std::endl;
-    std::cout << R << std::endl;
-    std::cout << D << std::endl << std::endl;
+//
+//    std::cout << K << std::endl;
+//    std::cout << R << std::endl;
+//    std::cout << D << std::endl << std::endl;
 
     cv::initUndistortRectifyMap(K, D, R, Kp, binned_resolution,
                                 CV_16SC2, cache_->full_map1, cache_->full_map2);
