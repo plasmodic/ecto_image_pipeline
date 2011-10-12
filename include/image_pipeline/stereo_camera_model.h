@@ -36,232 +36,22 @@ public:
    *
    * Sets the various parameters for rectification and image size
    */
-  void setParams(PinholeCameraModel &lcam, PinholeCameraModel &rcam, Eigen::Matrix4d &P);
-
-  /**
-   * \brief The resolution at which the camera was calibrated.
-   *
-   * The maximum resolution at which the camera can be used with the current
-   * calibration; normally this is the same as the imager resolution.
-   */
-  cv::Size fullResolution() const;
-
-  /**
-   * \brief The resolution of the current rectified image.
-   *
-   * The size of the rectified image associated with the latest CameraInfo, as
-   * reduced by binning/ROI and affected by distortion. If binning and ROI are
-   * not in use, this is the same as fullResolution().
-   */
-  cv::Size reducedResolution() const;
-
-  Eigen::Vector2d toFullResolution(const Eigen::Vector2d& uv_reduced) const;
-
-  cv::Rect toFullResolution(const cv::Rect& roi_reduced) const;
-
-  Eigen::Vector2d toReducedResolution(const Eigen::Vector2d& uv_full) const;
-
-  cv::Rect toReducedResolution(const cv::Rect& roi_full) const;
-
-  /**
-   * \brief The current raw ROI, as used for capture by the camera driver.
-   */
-  cv::Rect rawRoi() const;
-
-  /**
-   * \brief The current rectified ROI, which best fits the raw ROI.
-   */
-  cv::Rect rectifiedRoi() const;
-
-  /// @todo Hide or group deprecated overloads in Doxygen
-  void project3dToPixel(const Eigen::Vector3d& xyz, Eigen::Vector2d& uv_rect) const ROS_DEPRECATED;
-  
-  /**
-   * \brief Project a 3d point to rectified pixel coordinates.
-   *
-   * This is the inverse of projectPixelTo3dRay().
-   *
-   * \param xyz 3d point in the camera coordinate frame
-   * \return (u,v) in rectified pixel coordinates
-   */
-  Eigen::Vector2d project3dToPixel(const Eigen::Vector3d& xyz) const;
-
-  void projectPixelTo3dRay(const Eigen::Vector2d& uv_rect, Eigen::Vector3d& ray) const ROS_DEPRECATED;
-
-  /**
-   * \brief Project a rectified pixel to a 3d ray.
-   *
-   * Returns the unit vector in the camera coordinate frame in the direction of rectified
-   * pixel (u,v) in the image plane. This is the inverse of project3dToPixel().
-   *
-   * In 1.4.x, the vector has z = 1.0. Previously, this function returned a unit vector.
-   *
-   * \param uv_rect Rectified pixel coordinates
-   * \return 3d ray passing through (u,v)
-   */
-  Eigen::Vector3d projectPixelTo3dRay(const Eigen::Vector2d& uv_rect) const;
-
-  /**
-   * \brief Rectify a raw camera image.
-   */
-  void rectifyImage(const cv::Mat& raw, cv::Mat& rectified,
-                    int interpolation = CV_INTER_LINEAR) const;
+  void setParams(PinholeCameraModel &lcam, PinholeCameraModel &rcam, Pose &P);
 
   /**
    * \brief Register a raw depth image: rectify and transform
    * 
    * Registers a depth image to this image
+   * By convention, the right image is registered to the left image
    *
    * \param raw Input depth image, assumed to be rectified
-   * \param pm Stereo camera model for the depth image
    * \param registered Output registered depth image
    * \param metric Scale of the depth values, e.g., 0.001 is depth in mm
    */
   void registerDepthImage(const cv::Mat& raw,
-                          const StereoCameraModel& pm,
                           cv::Mat& registered,
                           const double metric) const;
 
-  /**
-   * \brief Apply camera distortion to a rectified image.
-   */
-  void unrectifyImage(const cv::Mat& rectified, cv::Mat& raw,
-                      int interpolation = CV_INTER_LINEAR) const;
-
-  void rectifyPoint(const Eigen::Vector2d& uv_raw, Eigen::Vector2d& uv_rect) const ROS_DEPRECATED;
-  
-  /**
-   * \brief Compute the rectified image coordinates of a pixel in the raw image.
-   */
-  Eigen::Vector2d rectifyPoint(const Eigen::Vector2d& uv_raw) const;
-
-  void unrectifyPoint(const Eigen::Vector2d& uv_rect, Eigen::Vector2d& uv_raw) const ROS_DEPRECATED;
-  
-  /**
-   * \brief Compute the raw image coordinates of a pixel in the rectified image.
-   */
-  Eigen::Vector2d unrectifyPoint(const Eigen::Vector2d& uv_rect) const;
-
-  /**
-   * \brief Compute the rectified ROI best fitting a raw ROI.
-   */
-  cv::Rect rectifyRoi(const cv::Rect& roi_raw) const;
-
-  /**
-   * \brief Compute the raw ROI best fitting a rectified ROI.
-   */
-  cv::Rect unrectifyRoi(const cv::Rect& roi_rect) const;
-  
-  /**
-   * \brief Returns the original camera matrix.
-   */
-  const Eigen::Matrix3d& inputIntrinsicMatrix() const;
-
-  /**
-   * \brief Returns the original camera matrix.
-   */
-  const Eigen::Matrix3d& outputIntrinsicMatrix() const;
-
-  /**
-   * \brief Returns the distortion coefficients.
-   */
-  const Eigen::VectorXd& distortionCoeffs() const;
-
-  /**
-   * \brief Returns the distortion coefficients.
-   */
-  const Eigen::Matrix<double,5,1>& rationalCoeffs() const;
-
-  /**
-   * \brief Returns the rotation matrix.
-   */
-  const Eigen::Matrix3d& rotationMatrix() const;
-
-  /**
-   * \brief Returns the original camera matrix for full resolution.
-   */
-  const Eigen::Matrix3d& inputFullIntrinsicMatrix() const;
-
-  /**
-   * \brief Returns the focal length (pixels) in x direction of the rectified image.
-   */
-  double fx() const;
-
-  /**
-   * \brief Returns the focal length (pixels) in y direction of the rectified image.
-   */
-  double fy() const;
-
-  /**
-   * \brief Returns the x coordinate of the optical center.
-   */
-  double cx() const;
-
-  /**
-   * \brief Returns the y coordinate of the optical center.
-   */
-  double cy() const;
-
-  /**
-   * \brief Returns the image height.
-   */
-  int height() const ROS_DEPRECATED;
-
-  /**
-   * \brief Returns the image width.
-   */
-  int width() const ROS_DEPRECATED;
-
-  /**
-   * \brief Returns the number of columns in each bin.
-   */
-  int binningX() const;
-
-  /**
-   * \brief Returns the number of rows in each bin.
-   */
-  int binningY() const;
-  
-  /**
-   * \brief Compute delta u, given Z and delta X in Cartesian space.
-   *
-   * For given Z, this is the inverse of getDeltaX().
-   *
-   * \param deltaX Delta X, in Cartesian space
-   * \param Z      Z (depth), in Cartesian space
-   */
-  double getDeltaU(double deltaX, double Z) const;
-
-  /**
-   * \brief Compute delta v, given Z and delta Y in Cartesian space.
-   *
-   * For given Z, this is the inverse of getDeltaY().
-   *
-   * \param deltaY Delta Y, in Cartesian space
-   * \param Z      Z (depth), in Cartesian space
-   */
-  double getDeltaV(double deltaY, double Z) const;
-
-  /**
-   * \brief Compute delta X, given Z in Cartesian space and delta u in pixels.
-   *
-   * For given Z, this is the inverse of getDeltaU().
-   *
-   * \param deltaU Delta u, in pixels
-   * \param Z      Z (depth), in Cartesian space
-   */
-  double getDeltaX(double deltaU, double Z) const;
-
-  /**
-   * \brief Compute delta Y, given Z in Cartesian space and delta v in pixels.
-   *
-   * For given Z, this is the inverse of getDeltaV().
-   *
-   * \param deltaV Delta v, in pixels
-   * \param Z      Z (depth), in Cartesian space
-   */
-  double getDeltaY(double deltaV, double Z) const;
-  
   /**
    * \brief Read a calibration file in YAML format
    *
@@ -279,72 +69,11 @@ public:
   void writeCalibration(std::string filename) const;
 
 protected:
-  int width_, height_;               // camera resolution
-  int binning_x_, binning_y_;        // image reduction
-  Eigen::VectorXd D_;                // Distortion coefficients: k1, k2, t1, t2, k3 for Tsai model (5x1),
-                                     //  8x1 for rational model
-  Eigen::Matrix3d R_;                // Rotation matrix, from input to output image
-  Eigen::Matrix3d K_;                // Input image camera internals
-  Eigen::Matrix3d K_full_;           // Input image camera internals, full image (no binning or ROI)
-  Eigen::Matrix3d Kp_;               // Output image camera internals
-  Eigen::Matrix3d Kp_full_;          // Output image camera internals, full image
-  cv::Rect rect_roi_, input_roi_;    // Region of interest for image
   Pose P_;                           // Transform from RW points to cam frame, used for registration
+  PinholeCameraModel lcam_, rcam_; // Left and right stereo cameras
   cv::Mat rtemp_;                    // Temporary image for computation
-
-  void initRectificationMaps() const;
-
-  // Use PIMPL here so we can change internals in patch updates if needed
-  struct Cache;
-  boost::shared_ptr<Cache> cache_; // Holds cached data for internal use
-
-  bool initialized() const { return cache_; }
-
-  friend class StereoCameraModel;
 };
 
-
-/* Trivial inline functions */
-
-inline const Eigen::Matrix3d& StereoCameraModel::inputIntrinsicMatrix() const  { return K_; }
-inline const Eigen::Matrix3d& StereoCameraModel::inputFullIntrinsicMatrix() const  { return K_full_; }
-inline const Eigen::Matrix3d& StereoCameraModel::outputIntrinsicMatrix() const  { return Kp_; }
-inline const Eigen::VectorXd& StereoCameraModel::distortionCoeffs() const { return D_; }
-inline const Eigen::Matrix3d& StereoCameraModel::rotationMatrix() const   { return R_; }
-
-inline double StereoCameraModel::fx() const { return Kp_(0,0); } 
-inline double StereoCameraModel::fy() const { return Kp_(1,1); }
-inline double StereoCameraModel::cx() const { return Kp_(0,2); }
-inline double StereoCameraModel::cy() const { return Kp_(1,2); }
-inline int    StereoCameraModel::height() const { return height_; }
-inline int    StereoCameraModel::width() const  { return width_; }
-
-inline int    StereoCameraModel::binningX() const { return binning_x_; }
-inline int    StereoCameraModel::binningY() const { return binning_y_; }
-
-inline double StereoCameraModel::getDeltaU(double deltaX, double Z) const
-{
-  assert( initialized() );
-  return fx() * deltaX / Z;
-}
-
-inline double StereoCameraModel::getDeltaV(double deltaY, double Z) const
-{
-  assert( initialized() );
-  return fy() * deltaY / Z;
-}
-
-inline double StereoCameraModel::getDeltaX(double deltaU, double Z) const
-{
-  assert( initialized() );
-  return Z * deltaU / fx();
-}
-
-inline double StereoCameraModel::getDeltaY(double deltaV, double Z) const
-{
-  assert( initialized() );
-  return Z * deltaV / fy();
-}
 
 } //namespace image_geometry
 

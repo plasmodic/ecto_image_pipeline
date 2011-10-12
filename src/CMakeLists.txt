@@ -2,6 +2,7 @@ add_library(image_pipeline SHARED
   abi.cpp
   image_pipeline.cpp
   pinhole_camera_model.cpp
+  stereo_camera_model.cpp
   calibration.cpp
   )
 

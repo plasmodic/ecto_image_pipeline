@@ -8,7 +8,8 @@ ecto_python_env_gen(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 ectomodule(image_pipeline
    module.cpp
    StereoCalibration.cpp
-   CalibrationLoader.cpp
+   PinholeModelLoader.cpp
+   StereoModelLoader.cpp
    CalibImageWriter.cpp
    Rectifier.cpp
    RectifierNC.cpp

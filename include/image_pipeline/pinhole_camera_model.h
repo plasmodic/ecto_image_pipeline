@@ -106,21 +106,6 @@ public:
                     int interpolation = CV_INTER_LINEAR) const;
 
   /**
-   * \brief Register a raw depth image: rectify and transform
-   * 
-   * Registers a depth image to this image
-   *
-   * \param raw Input depth image, assumed to be rectified
-   * \param pm Pinhole camera model for the depth image
-   * \param registered Output registered depth image
-   * \param metric Scale of the depth values, e.g., 0.001 is depth in mm
-   */
-  void registerDepthImage(const cv::Mat& raw,
-                          const PinholeCameraModel& pm,
-                          cv::Mat& registered,
-                          const double metric) const;
-
-  /**
    * \brief Apply camera distortion to a rectified image.
    */
   void unrectifyImage(const cv::Mat& rectified, cv::Mat& raw,
@@ -287,7 +272,6 @@ protected:
   Eigen::Matrix3d Kp_;               // Output image camera internals
   Eigen::Matrix3d Kp_full_;          // Output image camera internals, full image
   cv::Rect rect_roi_, input_roi_;    // Region of interest for image
-  Pose P_;                           // Transform from RW points to cam frame, used for registration
   cv::Mat rtemp_;                    // Temporary image for computation
 
   void initRectificationMaps() const;
