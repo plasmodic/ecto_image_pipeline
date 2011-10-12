@@ -3,39 +3,21 @@ import ecto
 from ecto_opencv import highgui
 from ecto_opencv.highgui import V4LCapture, VideoCapture, imshow, FPSDrawer, NiConverter
 from image_pipeline import Rectifier, RectifierNC, CalibrationLoader, DepthRegister
+from ecto_openni import OpenNICapture, DEPTH_RGB, DEPTH_IR, RGB, IR, IRGamma
 
-cal_rgb = CalibrationLoader(filename='cal_rgb.yml')
-cal_depth = CalibrationLoader(filename='cal_depth.yml')
+capture = OpenNICapture(stream_mode=DEPTH_RGB, registration=False, latched=False)
+cal_rgb = CalibrationLoader(filename='left.yml')
+cal_depth = CalibrationLoader(filename='right.yml')
 rect_rgb = Rectifier()
-rect_depth = RectifierNC()
+rect_depth = Rectifier()
 reg_depth = DepthRegister()
 
-verter = highgui.NiConverter('verter')
-fps = highgui.FPSDrawer('fps')
-
-def kinect_vga(device_n):
-    from ecto_openni import Capture, ResolutionMode, Device
-    return Capture('ni device', rgb_resolution=ResolutionMode.VGA_RES,
-                   depth_resolution=ResolutionMode.VGA_RES,
-                   rgb_fps=30, depth_fps=30,
-                   device_number=device_n,
-                   registration=False,
-                   synchronize=False,
-#                   device=Device.KINECT
-                   device=Device.ASUS_XTION_PRO_LIVE
-                   )
-
-kcap = kinect_vga(0);
 
 plasm = ecto.Plasm()
-
-#pipleline
 plasm.connect(
-    kcap[:] >> verter[:],
-#    verter['image'] >> fps[:],
-    verter['image'] >> rect_rgb['image'],
-    cal_rgb['camera'] >> rect_rgb['camera'],      
-    verter['depth'] >> rect_depth['image'],
+    capture['image'] >> rect_rgb['image'],
+    cal_rgb['camera'] >> rect_rgb['camera'],
+    capture['depth'] >> rect_depth['image'],
     cal_depth['camera'] >> rect_depth['camera'],
 
     # hook up the registration
@@ -48,11 +30,9 @@ plasm.connect(
 plasm.connect(
       rect_rgb['image'] >> imshow(name='Rectified RGB')['image'],
       rect_depth['image'] >> imshow(name='Rectified Depth')['image'],
-      verter['image'] >> imshow(name='Original')['image'],
-      reg_depth['image'] >> imshow(name='Registered Depth')['image']
+      capture['image'] >> imshow(name='Original')['image'],
+      capture['depth'] >> imshow(name='Original Depth')['image']
       )
-
-#plasm.insert(kcap)
 
 if __name__ == '__main__':
     from ecto.opts import doit

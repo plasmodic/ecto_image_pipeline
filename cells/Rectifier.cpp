@@ -24,17 +24,12 @@ namespace image_pipeline
       camera = in["camera"]; // this is like a smart pointer to the output.
       image_in = in["image"];
       image_out = out["image"];
-      //      cv::Mat output;   // do this for non-copied output
-      //      *image_out = output;
     }
     int process(const tendrils& /*in*/, const tendrils& /*out*/)
     {
       cv::Mat output;
       camera->rectifyImage(*image_in,output);
       *image_out = output;
-
-      camera->rectifyImage(*image_in,*image_out);
-
       return ecto::OK;
     }
     ecto::spore<PinholeCameraModel> camera;

@@ -39,7 +39,6 @@ PinholeCameraModel::PinholeCameraModel()
   if (!cache_)
     cache_ = boost::make_shared<Cache>();
   cache_->distortion_state = NONE;
-  std::cout << "Pinhole model creation" << std::endl;
 }
 
 // initialize the camera model
@@ -442,10 +441,10 @@ void PinholeCameraModel::initRectificationMaps() const
     cv::eigen2cv(D_,D);
     cv::eigen2cv(Kp_,Kp);
     cv::eigen2cv(R_,R);
-
-    std::cout << K << std::endl;
-    std::cout << R << std::endl;
-    std::cout << D << std::endl << std::endl;
+//
+//    std::cout << K << std::endl;
+//    std::cout << R << std::endl;
+//    std::cout << D << std::endl << std::endl;
 
     cv::initUndistortRectifyMap(K, D, R, Kp, binned_resolution,
                                 CV_16SC2, cache_->full_map1, cache_->full_map2);
@@ -484,12 +483,12 @@ void PinholeCameraModel::readCalibration(std::string calibfile)
   cv::FileStorage fs(calibfile, cv::FileStorage::READ);
   CV_Assert(fs.isOpened());
   cv::Mat K,Kp,R,D,P;
-  cv::read(fs["camera_matrix"], K, cv::Mat());
-  cv::read(fs["distortion_coefficients"], D, cv::Mat());
-  cv::read(fs["rotation_matrix"], R, cv::Mat());
-  cv::read(fs["pose_3d"], P, cv::Mat());
-  cv::read(fs["image_width"], width_, 0);
-  cv::read(fs["image_height"], height_, 0);
+  cv::read(fs["K"], K, cv::Mat());
+  cv::read(fs["D"], D, cv::Mat());
+  cv::read(fs["R"], R, cv::Mat());
+  cv::read(fs["P"], P, cv::Mat());
+  cv::read(fs["width"], width_, 0);
+  cv::read(fs["height"], height_, 0);
 
   CV_Assert(K.empty() == false);
   cv2eigen(K,K_);
