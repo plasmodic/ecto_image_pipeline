@@ -93,6 +93,17 @@ PinholeCameraModel::setParams(cv::Size image_size, const cv::Mat& K, const cv::M
   setParams(image_size, eK, eD, eR, eKp);
 }
 
+
+void PinholeCameraModel::toCv(cv::Size& size,cv::Mat& K,  cv::Mat& D, cv::Mat& R,
+                               cv::Mat&Kp)
+{
+  size.width = width_;
+  size.height = height_;
+  cv::eigen2cv(K_,K);
+  cv::eigen2cv(D_,D);
+  cv::eigen2cv(R_,R);
+  cv::eigen2cv(Kp_,Kp);
+}
 // For uint32_t, string, bool...
 template<typename T>
 bool update(const T& new_val, T& my_val)
@@ -281,6 +292,7 @@ Eigen::Vector2d PinholeCameraModel::rectifyPoint(const Eigen::Vector2d& uv_raw) 
   cv::undistortPoints(src_pt, dst_pt, K, D, R, Kp);
   return rect;
 }
+
 
 void PinholeCameraModel::unrectifyPoint(const Eigen::Vector2d& uv_rect, Eigen::Vector2d& uv_raw) const
 {

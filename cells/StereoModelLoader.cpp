@@ -31,28 +31,28 @@ namespace image_pipeline
       scam = out["stereo_model"]; // this is like a smart pointer to the output.
       lcam = out["left_model"]; // this is like a smart pointer to the output.
       rcam = out["right_model"]; // this is like a smart pointer to the output.
-      PinholeCameraModel left_cam,right_cam;
+      PinholeCameraModel left_cam, right_cam;
       StereoCameraModel stereo;
 
       std::string filename;
       params["left_fname"] >> filename;
       lcam->readCalibration(filename);
-      lcam->writeCalibration("lxx.yml");
 
       params["right_fname"] >> filename;
       rcam->readCalibration(filename);
-      rcam->writeCalibration("rxx.yml");
 
       params["stereo_fname"] >> filename;
       scam->readCalibration(filename);
-      scam->writeCalibration("ss.yml");
-      scam->setParams(*lcam,*rcam,scam->pose());
+      scam->setParams(*lcam, *rcam, scam->pose());
       std::cout << "Config of Stereo Model Loader" << std::endl;
+      std::cout << "Left K:" << lcam->getK() << "\n" << "Right K:" << rcam->getK() << "\n" << "Distortion Left:"
+                << lcam->getD() << "\nDistortion Right:" << rcam->getD() << std::endl;
     }
     ecto::spore<PinholeCameraModel> lcam, rcam;
     ecto::spore<StereoCameraModel> scam;
   };
 }
 
-ECTO_CELL(image_pipeline, image_pipeline::StereoModelLoader, "StereoModelLoader",
-          "This reads a stereo camera calibration file and two monocular cal files, and puts the results on the outputs.");
+ECTO_CELL(
+    image_pipeline, image_pipeline::StereoModelLoader, "StereoModelLoader",
+    "This reads a stereo camera calibration file and two monocular cal files, and puts the results on the outputs.");

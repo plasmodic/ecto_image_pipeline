@@ -14,6 +14,8 @@ ectomodule(image_pipeline
    Rectifier.cpp
    RectifierNC.cpp
    DepthRegister.cpp
+   CameraModelToCv.cpp
+   PointsAccumulator.cpp
 )
 
 link_ecto(image_pipeline

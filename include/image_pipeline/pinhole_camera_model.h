@@ -37,6 +37,8 @@ public:
   void setParams(cv::Size &size, Eigen::Matrix3d &K, Eigen::VectorXd &D, Eigen::Matrix3d &R, Eigen::Matrix3d &Kp);
   void setParams(cv::Size image_size, const cv::Mat& K, const cv::Mat& D, const cv::Mat& R,
                                 const cv::Mat&Kp);
+  void toCv(cv::Size& size,cv::Mat& K,  cv::Mat& D, cv::Mat& R,
+                                 cv::Mat&Kp);
   /**
    * \brief The resolution at which the camera was calibrated.
    *
@@ -262,6 +264,11 @@ public:
    */
   void writeCalibration(std::string filename) const;
 
+  Eigen::Matrix3d getK()const { return K_;}
+
+  Eigen::Matrix3d getKp()const { return Kp_;}
+
+  Eigen::VectorXd getD() const { return D_;}
 protected:
   int width_, height_;               // camera resolution
   int binning_x_, binning_y_;        // image reduction

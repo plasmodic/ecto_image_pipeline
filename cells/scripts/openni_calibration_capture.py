@@ -2,7 +2,7 @@
 import ecto
 from ecto_opencv.highgui import imshow, ImageSaver
 from ecto_opencv.calib import PatternDetector, PatternDrawer, CameraCalibrator, ASYMMETRIC_CIRCLES_GRID,CHESSBOARD, GatherPoints
-from ecto_opencv.imgproc import cvtColor, Conversion
+from ecto_opencv.imgproc import cvtColor, RGB2GRAY
 from ecto_openni import OpenNICapture, DEPTH_RGB, DEPTH_IR, RGB, IR, IRGamma
 from image_pipeline import StereoCalibration
 import os
@@ -13,7 +13,7 @@ create_detector_drawer = create_detector_drawer_chessboard
 capture = OpenNICapture(stream_mode=RGB, registration=False, latched=True)
 next_mode = IR
 conversion = IRGamma() # scale the IR so that we can visualize it.
-rgb2gray = cvtColor(flag=Conversion.RGB2GRAY)
+rgb2gray = cvtColor(flag=RGB2GRAY)
 
 plasm = ecto.Plasm()
 plasm.insert(capture)
@@ -26,8 +26,6 @@ ir_detector, ir_drawer = create_detector_drawer()
 rgb_detector, rgb_drawer = create_detector_drawer()
 
 rgb_display = imshow(name="RGB Points", triggers=dict(save=ord('s')))
-
-
 
 plasm.connect(conversion[:] >> (ir_detector[:], ir_drawer['input']),
               rgb2gray[:] >> (rgb_detector[:], rgb_drawer['input']),
