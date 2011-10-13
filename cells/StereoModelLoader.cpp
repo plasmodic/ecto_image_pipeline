@@ -47,7 +47,7 @@ namespace image_pipeline
       *scam = stereo;
 
       std::string filename;
-#if 0
+#if 1
       params["left_fname"] >> filename;
       cam.readCalibration(filename);
       cam.writeCalibration("xx.yml");
@@ -64,9 +64,7 @@ namespace image_pipeline
       *scam = stereo;
 #endif
 
-      std::cout << "Config of Pinhole Model Loader" << std::endl;
-      //TODO load the camera from file.
-      //load(*camera, filename);
+      std::cout << "Config of Stereo Model Loader" << std::endl;
     }
     ecto::spore<PinholeCameraModel> lcam, rcam;
     ecto::spore<StereoCameraModel> scam;

@@ -21,6 +21,7 @@ namespace image_pipeline
                    PinholeCameraModel& right)
   {
     PinholeCameraModel camera;
+    StereoCameraModel scam;
     std::vector<cv::Mat> rvecs, tvecs;
     cv::Mat K_left, K_right, D_right, D_left, R, T, E, F;
     int flags = CV_CALIB_FIX_ASPECT_RATIO | CV_CALIB_FIX_PRINCIPAL_POINT | CV_CALIB_ZERO_TANGENT_DIST;
@@ -41,8 +42,17 @@ namespace image_pipeline
     left.writeCalibration("left.yml");
     right.writeCalibration("right.yml");
 
-    cv::FileStorage fs("stereo.yml",cv::FileStorage::WRITE);
-    fs << "R" << R << "T" << T << "base_line" << 0.07500 << "shift_offset" << 0;
+    Eigen::Matrix3d Re;
+    Eigen::Vector3d Te;
+    Eigen::Matrix4d Pe = Eigen::Matrix4d::Identity();
+    cv2eigen(R,Re);
+    cv2eigen(T,Te);
+    Pe.block(0,0,3,3) = Re;
+    Pe.block(3,0,1,3) = Te;
+    Pose P;
+    P.transform.matrix() = Pe;
+    scam.setParams(left,right,P);
+    scam.writeCalibration("stereo.yml");
   }
 
 }

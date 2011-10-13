@@ -79,11 +79,31 @@ void StereoCameraModel::registerDepthImage(const cv::Mat& raw,
 
 void StereoCameraModel::writeCalibration(std::string filename) const
 {
+  cv::FileStorage fs(filename, cv::FileStorage::WRITE);
+  CV_Assert(fs.isOpened());
+  cv::Mat P;
+  cv::eigen2cv(P_.transform.matrix(),P);
+
+  cvWriteComment(*fs, "Stereo", 0);
+
+  if (!P.empty())
+    fs << "stereo_pose_offset" << P;
 }
 
 void StereoCameraModel::readCalibration(std::string filename)
 {
-}
+  cv::FileStorage fs(filename, cv::FileStorage::READ);
+  CV_Assert(fs.isOpened());
+  cv::Mat P;
+  cv::read(fs["stereo_pose_offset"], P, cv::Mat());
+
+  CV_Assert(P.empty() == false);
+  Eigen::Matrix4d Px;
+  cv2eigen(P,Px);
+  P_.transform.matrix() = Px;
+
+  std::cout << Px << std::endl;
 
 }
 
+}

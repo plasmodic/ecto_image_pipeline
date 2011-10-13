@@ -454,7 +454,13 @@ void PinholeCameraModel::readCalibration(std::string calibfile)
     R_.setIdentity();
   else
     cv2eigen(R,R_);
+
+  if (Kp.empty())
+    Kp_ = K_;
+  else
+    cv2eigen(Kp,Kp_);
 }
+
 
 //
 // Store all the parameters
