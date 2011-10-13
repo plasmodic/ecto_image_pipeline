@@ -24,8 +24,6 @@ namespace image_pipeline
       rgbd_camera = in["rgbd_model"]; 
       image_in = in["image"];
       image_out = out["image"];
-      //      cv::Mat output;   // do this for non-copied output
-      //      *image_out = output;
     }
     int process(const tendrils& /*in*/, const tendrils& /*out*/)
     {
@@ -36,7 +34,6 @@ namespace image_pipeline
     }
     ecto::spore<StereoCameraModel> rgbd_camera;
     ecto::spore<cv::Mat> image_in, image_out;
-
   };
 }
 

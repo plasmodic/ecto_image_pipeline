@@ -27,7 +27,7 @@ plasm.connect(
 #display stuff
 plasm.connect(
        rect_rgb['image'] >> imshow(name='Rectified RGB')['image'],
-       rect_depth['image'] >> imshow(name='Rectified Depth')['image'],
+       reg_depth['image'] >> imshow(name='Rectified Depth')['image'],
        capture['image'] >> imshow(name='Original')['image'],
        capture['depth'] >> imshow(name='Original Depth')['image']
        )

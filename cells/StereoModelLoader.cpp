@@ -31,39 +31,22 @@ namespace image_pipeline
       scam = out["stereo_model"]; // this is like a smart pointer to the output.
       lcam = out["left_model"]; // this is like a smart pointer to the output.
       rcam = out["right_model"]; // this is like a smart pointer to the output.
-      PinholeCameraModel cam;
+      PinholeCameraModel left_cam,right_cam;
       StereoCameraModel stereo;
 
-      // some dummy params
-      Eigen::Matrix3d K = Matrix3d::Zero();
-      K(0,0) = 400; K(1,1) = 400; K(0,2) = 320; K(1,2) = 240; K(2,2) = 1;
-      Eigen::Matrix3d R = Matrix3d::Identity();
-      Eigen::VectorXd D(5,1);
-      D << 0.1, 0, 0, 0, 0;
-      cv::Size s(640,480);
-      cam.setParams(s,K,D,R,K);
-      *lcam = cam;
-      *rcam = cam;
-      *scam = stereo;
-
       std::string filename;
-#if 1
       params["left_fname"] >> filename;
-      cam.readCalibration(filename);
-      cam.writeCalibration("xx.yml");
-      *lcam = cam;
+      lcam->readCalibration(filename);
+      lcam->writeCalibration("lxx.yml");
 
       params["right_fname"] >> filename;
-      cam.readCalibration(filename);
-      cam.writeCalibration("xx.yml");
-      *rcam = cam;
+      rcam->readCalibration(filename);
+      rcam->writeCalibration("rxx.yml");
 
       params["stereo_fname"] >> filename;
-      stereo.readCalibration(filename);
-      stereo.writeCalibration("ss.yml");
-      *scam = stereo;
-#endif
-
+      scam->readCalibration(filename);
+      scam->writeCalibration("ss.yml");
+      scam->setParams(*lcam,*rcam,scam->pose());
       std::cout << "Config of Stereo Model Loader" << std::endl;
     }
     ecto::spore<PinholeCameraModel> lcam, rcam;
