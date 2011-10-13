@@ -35,7 +35,8 @@ public:
    * Sets the various parameters for rectification and image size
    */
   void setParams(cv::Size &size, Eigen::Matrix3d &K, Eigen::VectorXd &D, Eigen::Matrix3d &R, Eigen::Matrix3d &Kp);
-
+  void setParams(cv::Size image_size, const cv::Mat& K, const cv::Mat& D, const cv::Mat& R,
+                                const cv::Mat&Kp);
   /**
    * \brief The resolution at which the camera was calibrated.
    *

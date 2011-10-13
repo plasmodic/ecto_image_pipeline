@@ -36,7 +36,7 @@ public:
    *
    * Sets the various parameters for rectification and image size
    */
-  void setParams(PinholeCameraModel &lcam, PinholeCameraModel &rcam, Pose &P);
+  void setParams(const PinholeCameraModel &lcam,const PinholeCameraModel &rcam, const Pose &P);
 
   /**
    * \brief Register a raw depth image: rectify and transform
@@ -67,6 +67,10 @@ public:
    * \param filename Name of the file to read
    */
   void writeCalibration(std::string filename) const;
+
+  Pose pose() const{return P_;}
+  PinholeCameraModel leftCamera() const{return lcam_;}
+  PinholeCameraModel rightCamera() const{return rcam_;}
 
 protected:
   Pose P_;                           // Transform from RW points to cam frame, used for registration
