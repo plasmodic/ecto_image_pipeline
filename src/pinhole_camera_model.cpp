@@ -15,13 +15,13 @@ struct PinholeCameraModel::Cache
   DistortionState distortion_state;
 
   cv::Mat_<double> K_binned, Kp_binned; // Binning applied, but not cropping
-  
+
   mutable bool full_maps_dirty;
   mutable cv::Mat full_map1, full_map2;
 
   mutable bool reduced_maps_dirty;
   mutable cv::Mat reduced_map1, reduced_map2;
-  
+
   mutable bool rectified_roi_dirty;
   mutable cv::Rect rectified_roi;
 
@@ -36,8 +36,7 @@ struct PinholeCameraModel::Cache
 PinholeCameraModel::PinholeCameraModel()
 {
   // Create our repository of cached data (rectification maps, etc.)
-  if (!cache_)
-    cache_ = boost::make_shared<Cache>();
+  cache_ = boost::make_shared<Cache>();
   cache_->distortion_state = NONE;
 }
 
@@ -60,6 +59,39 @@ PinholeCameraModel::setParams(cv::Size &size, Eigen::Matrix3d &K, Eigen::VectorX
   cache_->full_maps_dirty;
 }
 
+void
+PinholeCameraModel::setParams(cv::Size image_size, const cv::Mat& K, const cv::Mat& D, const cv::Mat& R,
+                              const cv::Mat&Kp)
+{
+  Eigen::Matrix3d eK, eKp, eR;
+  Eigen::VectorXd eD;
+  cv::cv2eigen(K, eK);
+  if (D.empty())
+  {
+    eD.setZero();
+  }
+  else
+  {
+    if(D.rows == 1)
+    {
+      cv2eigen(D.t(), eD);
+    }else
+    {
+      cv2eigen(D, eD);
+    }
+  }
+
+  if (R.empty())
+    R_.setIdentity();
+  else
+    cv::cv2eigen(R, eR);
+
+  if (Kp.empty())
+    eKp = eK;
+  else
+    cv2eigen(Kp, eKp);
+  setParams(image_size, eK, eD, eR, eKp);
+}
 
 // For uint32_t, string, bool...
 template<typename T>
@@ -146,7 +178,7 @@ cv::Rect PinholeCameraModel::rawRoi() const
 cv::Rect PinholeCameraModel::rectifiedRoi() const
 {
   assert( initialized() );
-  
+
   if (cache_->rectified_roi_dirty)
   {
     //    if (!cam_info_.roi.do_rectify)
@@ -307,7 +339,7 @@ cv::Rect PinholeCameraModel::rectifyRoi(const cv::Rect& roi_raw) const
   assert( initialized() );
 
   /// @todo Actually implement "best fit" as described by REP 104.
-  
+
   // For now, just unrectify the four corners and take the bounding box.
   Eigen::Vector2d rect_tl = rectifyPoint(Eigen::Vector2d(roi_raw.x, roi_raw.y));
   Eigen::Vector2d rect_tr = rectifyPoint(Eigen::Vector2d(roi_raw.x + roi_raw.width, roi_raw.y));
@@ -328,7 +360,7 @@ cv::Rect PinholeCameraModel::unrectifyRoi(const cv::Rect& roi_rect) const
   assert( initialized() );
 
   /// @todo Actually implement "best fit" as described by REP 104.
-  
+
   // For now, just unrectify the four corners and take the bounding box.
   Eigen::Vector2d raw_tl = unrectifyPoint(Eigen::Vector2d(roi_rect.x, roi_rect.y));
   Eigen::Vector2d raw_tr = unrectifyPoint(Eigen::Vector2d(roi_rect.x + roi_rect.width, roi_rect.y));
@@ -348,7 +380,7 @@ void PinholeCameraModel::initRectificationMaps() const
 {
   /// @todo For large binning settings, can drop extra rows/cols at bottom/right boundary.
   /// Make sure we're handling that 100% correctly.
-  
+
   if (cache_->full_maps_dirty) {
     // Create the full-size map at the binned resolution
     /// @todo Should binned resolution, K, P be part of public API?
@@ -379,14 +411,14 @@ void PinholeCameraModel::initRectificationMaps() const
         Kp_binned(1,2) *= scale_y;
       }
     }
-    
+
     // Note: m1type=CV_16SC2 to use fast fixed-point maps (see cv::remap)
     cv::Mat K, Kp, R, D;
     cv::eigen2cv(K_,K);
     cv::eigen2cv(D_,D);
     cv::eigen2cv(Kp_,Kp);
     cv::eigen2cv(R_,R);
-//
+
 //    std::cout << K << std::endl;
 //    std::cout << R << std::endl;
 //    std::cout << D << std::endl << std::endl;
@@ -428,37 +460,15 @@ void PinholeCameraModel::readCalibration(std::string calibfile)
   cv::FileStorage fs(calibfile, cv::FileStorage::READ);
   CV_Assert(fs.isOpened());
   cv::Mat K,Kp,R,D,P;
+  int width, height;
   cv::read(fs["input_camera_matrix"], K, cv::Mat());
   cv::read(fs["distortion_coefficients"], D, cv::Mat());
   cv::read(fs["rotation_matrix"], R, cv::Mat());
   cv::read(fs["rectified_camera_matrix"], Kp, cv::Mat());
-  cv::read(fs["image_width"], width_, 0);
-  cv::read(fs["image_height"], height_, 0);
-
+  cv::read(fs["image_width"], width, 0);
+  cv::read(fs["image_height"], height, 0);
   CV_Assert(K.empty() == false);
-  cv2eigen(K,K_);
-
-  Eigen::MatrixXd De;
-  if (D.empty())
-    D_.setZero();
-  else
-    {
-      cv2eigen(D,De);
-      if (De.rows() == 1)
-        D_ = De.transpose();
-      else
-        D_ = De;
-    }
-
-  if (R.empty())
-    R_.setIdentity();
-  else
-    cv2eigen(R,R_);
-
-  if (Kp.empty())
-    Kp_ = K_;
-  else
-    cv2eigen(Kp,Kp_);
+  setParams(cv::Size(width,height),K,D,R,Kp);
 }
 
 
@@ -474,7 +484,6 @@ void PinholeCameraModel::writeCalibration(std::string calibfile) const
   cv::eigen2cv(D_,D);
   cv::eigen2cv(Kp_,Kp);
   cv::eigen2cv(R_,R);
-
   cvWriteComment(*fs, "Camera", 0);
 
   fs << "image_width" << width_;
@@ -487,7 +496,7 @@ void PinholeCameraModel::writeCalibration(std::string calibfile) const
   if (!R.empty())
     fs << "rotation_matrix" << R;
   if (!Kp.empty())
-    fs << "rectified_camera_matrix" << R;
+    fs << "rectified_camera_matrix" << Kp;
 }
 
 
