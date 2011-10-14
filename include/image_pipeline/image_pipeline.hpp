@@ -10,7 +10,7 @@
 #include <iostream>
 namespace image_pipeline
 {
-  struct Pose //For now this is just bogus.. to test the libs.
+  struct Pose
   {
     explicit Pose(const std::string& frame_id = "",
                   const Eigen::Affine3d transform = Eigen::Affine3d::Identity()

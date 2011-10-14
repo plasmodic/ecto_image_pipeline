@@ -10,9 +10,8 @@ ectomodule(image_pipeline
    StereoCalibration.cpp
    PinholeModelLoader.cpp
    StereoModelLoader.cpp
-   CalibImageWriter.cpp
+   Latch.cpp
    Rectifier.cpp
-   RectifierNC.cpp
    DepthRegister.cpp
    CameraModelToCv.cpp
    PointsAccumulator.cpp

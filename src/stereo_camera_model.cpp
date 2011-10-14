@@ -43,7 +43,7 @@ namespace image_pipeline
     Eigen::Matrix4d P;
     Eigen::Matrix4f Pf;
 
-    P = K * P_.transform.inverse().matrix() * Q; //left * Transform * right_reprojection
+    P = K * P_.transform.matrix().inverse() * Q; //left * Transform * right_reprojection
     Pf = P.cast<float>();
 
     // for each element of the depth image, transform to output image
@@ -106,9 +106,6 @@ namespace image_pipeline
     Eigen::Matrix4d Px;
     cv2eigen(P, Px);
     P_.transform.matrix() = Px;
-
-    std::cout << Px << std::endl;
-
   }
 
 }

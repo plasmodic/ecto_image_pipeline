@@ -38,4 +38,4 @@ namespace image_pipeline
 }
 
 ECTO_CELL(image_pipeline, image_pipeline::DepthRegister, "DepthRegister",
-          "Given a depth image and rgbd image model, register the depth image.");
+          "Given a depth image and rgbd image model, register the depth to the image.");

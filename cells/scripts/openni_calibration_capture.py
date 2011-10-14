@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 import ecto
 from ecto_opencv.highgui import imshow, ImageSaver
-from ecto_opencv.calib import PatternDetector, PatternDrawer, CameraCalibrator, ASYMMETRIC_CIRCLES_GRID,CHESSBOARD, GatherPoints
+from ecto_opencv.calib import PatternDetector, PatternDrawer, CameraCalibrator, ASYMMETRIC_CIRCLES_GRID, CHESSBOARD, GatherPoints
 from ecto_opencv.imgproc import cvtColor, RGB2GRAY
 from ecto_openni import OpenNICapture, DEPTH_RGB, DEPTH_IR, RGB, IR, IRGamma
-from image_pipeline import StereoCalibration
+from image_pipeline import StereoCalibration, LatchBool
 import os
 
 from pattern_helpers import *
@@ -21,26 +21,28 @@ plasm.connect(capture['image'] >> rgb2gray[:],
               capture['ir'] >> conversion[:],
               )
 
-
 ir_detector, ir_drawer = create_detector_drawer()
 rgb_detector, rgb_drawer = create_detector_drawer()
 
 rgb_display = imshow(name="RGB Points", triggers=dict(save=ord('s')))
-
+trigger_latch = LatchBool()
+reset_source, reset_sink = ecto.EntangledPair(value=trigger_latch.inputs.at('reset'), source_name='Reset Source', sink_name='Reset Sink')
 plasm.connect(conversion[:] >> (ir_detector[:], ir_drawer['input']),
               rgb2gray[:] >> (rgb_detector[:], rgb_drawer['input']),
               ir_detector['found', 'out'] >> ir_drawer['found', 'points'],
               rgb_detector['found', 'out'] >> rgb_drawer['found', 'points'],
               rgb_drawer[:] >> rgb_display[:],
-              ir_drawer[:] >> imshow(name='Depth points')[:]
+              ir_drawer[:] >> imshow(name='Depth points')[:],
+              rgb_display['save'] >> (trigger_latch['input'], trigger_latch['set']),
+              reset_source[:] >> trigger_latch['reset']
               )
-
 
 #triggers
 ander = ecto.And(ninput=3)
 plasm.connect(rgb_detector['found'] >> ander['in1'],
               ir_detector['found'] >> ander['in2'],
-              rgb_display['save'] >> ander['in3'],
+              trigger_latch[:] >> ander['in3'],
+              ander[:] >> reset_sink[:]
             )
 
 def init_image_dir(prefix):

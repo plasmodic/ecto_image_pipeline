@@ -28,7 +28,7 @@ namespace image_pipeline
     int process(const tendrils& /*in*/, const tendrils& /*out*/)
     {
       cv::Mat output;
-      camera->rectifyImage(*image_in,output,CV_INTER_NN);
+      camera->rectifyImage(*image_in,output,CV_INTER_NN);//FIXME parameterize
       *image_out = output;
       return ecto::OK;
     }

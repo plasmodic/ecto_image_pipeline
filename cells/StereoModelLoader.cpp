@@ -44,9 +44,6 @@ namespace image_pipeline
       params["stereo_fname"] >> filename;
       scam->readCalibration(filename);
       scam->setParams(*lcam, *rcam, scam->pose());
-      std::cout << "Config of Stereo Model Loader" << std::endl;
-      std::cout << "Left K:" << lcam->getK() << "\n" << "Right K:" << rcam->getK() << "\n" << "Distortion Left:"
-                << lcam->getD() << "\nDistortion Right:" << rcam->getD() << std::endl;
     }
     ecto::spore<PinholeCameraModel> lcam, rcam;
     ecto::spore<StereoCameraModel> scam;

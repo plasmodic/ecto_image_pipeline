@@ -4,7 +4,7 @@ from ecto_opencv.highgui import imshow, ImageReader
 from ecto_opencv.calib import PatternDetector, PatternDrawer, CameraCalibrator, ASYMMETRIC_CIRCLES_GRID, GatherPoints
 from ecto_opencv.imgproc import cvtColor, Conversion
 from ecto_openni import OpenNICapture, DEPTH_RGB, DEPTH_IR, RGB, IR, IRGamma
-from image_pipeline import StereoCalibration
+from image_pipeline import StereoCalibration, Points2DAccumulator, Points3DAccumulator
 
 from pattern_helpers import *
 
@@ -34,14 +34,25 @@ plasm.connect(rgb_detector['found'] >> ander['in1'],
               ir_detector['found'] >> ander['in2'],
             )
 
-calibrator = ecto.If('calibrator',cell=StereoCalibration())
 
-plasm.connect(rgb_detector['out', 'ideal'] >> calibrator['points_left', 'points_object'],
-              ir_detector['out'] >> calibrator['points_right'],
-              ander[:] >> calibrator['__test__'],
+left_points, right_points = ecto.If('Left Points', cell=Points2DAccumulator()), ecto.If('Right Points', cell=Points2DAccumulator())
+object_points = ecto.If('Object Points', cell=Points3DAccumulator())
+
+calibrator_ = StereoCalibration()
+calibrator = ecto.If('calibrator', cell=calibrator_)
+
+plasm.connect(rgb_detector['out'] >> left_points['points'],
+              rgb_detector['ideal'] >> object_points['points'],
+              ir_detector['out'] >> right_points['points'],
+              ander[:] >> (left_points['__test__'], right_points['__test__'], object_points['__test__']),
+              left_points['stacked'] >> calibrator['points_left'],
+              object_points['stacked'] >> calibrator['points_object'],
+              right_points['stacked'] >> calibrator['points_right'],
               rgb_reader['image'] >> calibrator['image']
               )
 
 sched = ecto.schedulers.Singlethreaded(plasm)
 sched.execute()
-print sched.stats()
+
+print "Calibrating"
+calibrator_.process()

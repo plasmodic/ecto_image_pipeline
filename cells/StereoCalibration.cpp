@@ -25,31 +25,28 @@ namespace image_pipeline
     static void
     declare_io(const tendrils& params, tendrils& in, tendrils& out)
     {
-      in.declare(&StereoCalibration::image_,"image","An image to base the size of of.").required(true);
-      in.declare(&StereoCalibration::object_pts_,"points_object", "The ideal object points.").required(true);
-      in.declare(&StereoCalibration::pts_left_,"points_left", "The observed 2d points in the left camera.").required(true);
-      in.declare(&StereoCalibration::pts_right_,"points_right", "The observed 2d points in the right camera.").required(true);
+      in.declare(&StereoCalibration::image_, "image", "An image to base the size of of.").required(true);
+      in.declare(&StereoCalibration::object_pts_, "points_object", "The ideal object points.").required(true);
+      in.declare(&StereoCalibration::pts_left_, "points_left", "The observed 2d points in the left camera.").required(
+          true);
+      in.declare(&StereoCalibration::pts_right_, "points_right", "The observed 2d points in the right camera.").required(
+          true);
     }
 
     int
     process(const tendrils& in, const tendrils& out)
     {
       PinholeCameraModel left, right;
-      all_object_pts.push_back(*object_pts_);
-      all_left_pts.push_back(*pts_left_);
-      all_right_pts.push_back(*pts_right_);
       cv::Mat image = *image_;
-      image_pipeline::calibrate_stereo(all_left_pts,all_right_pts,all_object_pts,image.size(),left, right);
+      image_pipeline::calibrate_stereo(*pts_left_, *pts_right_, *object_pts_, image.size(), left, right);
       return ecto::OK;
     }
-    ecto::spore<object_pts_t > object_pts_;
-    ecto::spore<observation_pts_t> pts_left_, pts_right_;
-    object_pts_v_t all_object_pts;
-    observation_pts_v_t all_left_pts, all_right_pts;
+    ecto::spore<object_pts_v_t> object_pts_;
+    ecto::spore<observation_pts_v_t> pts_left_, pts_right_;
     ecto::spore<cv::Mat> image_;
   };
 }
 ECTO_CELL(image_pipeline, image_pipeline::StereoCalibration, "StereoCalibration",
           "Accumulates observed points and ideal 3d points, and runs "
-"opencv calibration routines after some number of "
-"satisfactorily unique observations.");
+          "opencv calibration routines after some number of "
+          "satisfactorily unique observations.");

@@ -2,7 +2,7 @@
 import ecto
 from ecto_opencv.highgui import imshow
 from ecto_opencv.calib import DepthTo3d
-from image_pipeline import Rectifier, RectifierNC, StereoModelLoader, DepthRegister, CameraModelToCv
+from image_pipeline import Rectifier, StereoModelLoader, DepthRegister, CameraModelToCv
 from ecto_openni import OpenNICapture, DEPTH_RGB, DEPTH_IR, RGB, IR, IRGamma
 from ecto_object_recognition.conversion import MatToPointCloudXYZRGB
 from ecto_pcl import PointCloudT2PointCloud, CloudViewer, XYZRGB
