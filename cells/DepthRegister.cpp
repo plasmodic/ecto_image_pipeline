@@ -11,6 +11,8 @@ namespace image_pipeline
     declare_params(tendrils& params)
     {
       params.declare(&DepthRegister::metric_, "metric","A metric scalar.",0.001);
+      params.declare<int>("cx_offset", "Center offset X of input image", 0);
+      params.declare<int>("cy_offset", "Center offset Y of input image", 0);
     }
     static void
     declare_io(const tendrils& params, tendrils& in, tendrils& out)
@@ -25,11 +27,13 @@ namespace image_pipeline
       rgbd_camera = in["rgbd_model"]; 
       image_in = in["image"];
       image_out = out["image"];
+      params["cx_offset"] >> cx_offset;
+      params["cy_offset"] >> cy_offset;
     }
     int process(const tendrils& /*in*/, const tendrils& /*out*/)
     {
       cv::Mat output;
-      rgbd_camera->registerDepthImage(*image_in,output,*metric_);
+      rgbd_camera->registerDepthImage(*image_in,output,*metric_,cx_offset,cy_offset);
 
       *image_out = output;
       return ecto::OK;
@@ -37,6 +41,7 @@ namespace image_pipeline
     ecto::spore<StereoCameraModel> rgbd_camera;
     ecto::spore<cv::Mat> image_in, image_out;
     ecto::spore<double> metric_;
+    int cx_offset, cy_offset;
   };
 }
 

@@ -47,10 +47,12 @@ public:
    * \param raw Input depth image, assumed to be rectified
    * \param registered Output registered depth image
    * \param metric Scale of the depth values, e.g., 0.001 is depth in mm
+   * \param cx_offset,cy_offset Optional offset of depth image from upper left corner
    */
   void registerDepthImage(const cv::Mat& raw,
                           cv::Mat& registered,
-                          const double metric) const;
+                          const double metric,
+                          int cx_offset = 0, int cy_offset = 0) const;
 
   /**
    * \brief Read a calibration file in YAML format

@@ -25,7 +25,8 @@ namespace image_pipeline
 // rcam is depth cam
 
   void
-  StereoCameraModel::registerDepthImage(const cv::Mat& raw, cv::Mat& registered, double metric) const
+  StereoCameraModel::registerDepthImage(const cv::Mat& raw, cv::Mat& registered, double metric, 
+                                        int cx_offset, int cy_offset) const
   {
     if (raw.type() != CV_16UC1)
       throw std::runtime_error("Bad image type. expecting 16UC1");
@@ -61,7 +62,7 @@ namespace image_pipeline
         if (d > 0)
         {
           Eigen::Vector4f v;
-          v << (float) j, (float) i, im / (float) d, 1.0f;
+          v << (float) j+cx_offset, (float) i+cy_offset, im / (float) d, 1.0f;
           Eigen::Vector4f vp = Pf * v; // transformed
           if (vp(3) > 0.0)
           {
