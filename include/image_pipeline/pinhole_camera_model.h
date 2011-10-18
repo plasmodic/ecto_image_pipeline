@@ -34,11 +34,13 @@ public:
    *
    * Sets the various parameters for rectification and image size
    */
-  void setParams(cv::Size &size, Eigen::Matrix3d &K, Eigen::VectorXd &D, Eigen::Matrix3d &R, Eigen::Matrix3d &Kp);
-  void setParams(cv::Size image_size, const cv::Mat& K, const cv::Mat& D, const cv::Mat& R,
-                                const cv::Mat&Kp);
-  void toCv(cv::Size& size,cv::Mat& K,  cv::Mat& D, cv::Mat& R,
-                                 cv::Mat&Kp);
+  void setParams(cv::Size &size, Eigen::Matrix3d &K, Eigen::VectorXd &D, Eigen::Matrix3d &R, Eigen::Matrix3d &Kp,
+                 const double ox = 0.0, const double oy = 0.0);
+  void setParams(cv::Size image_size, const cv::Mat& K, const cv::Mat& D, const cv::Mat& R, const cv::Mat&Kp,
+                 const double ox = 0.0, const double oy = 0.0);
+  void setCenterOffset(const double ox, const double oy);
+  void toCv(cv::Size &size,cv::Mat &K,  cv::Mat &D, cv::Mat &R,
+                                 cv::Mat &Kp);
   /**
    * \brief The resolution at which the camera was calibrated.
    *
@@ -280,6 +282,11 @@ protected:
   Eigen::Matrix3d Kp_;               // Output image camera internals
   Eigen::Matrix3d Kp_full_;          // Output image camera internals, full image
   cv::Rect rect_roi_, input_roi_;    // Region of interest for image
+
+ public:
+  double cx_offset_, cy_offset_;     // Offset of input image from calibration image
+
+ protected:
   cv::Mat rtemp_;                    // Temporary image for computation
 
   void initRectificationMaps() const;

@@ -2,7 +2,7 @@
 import ecto
 from ecto_opencv.highgui import imshow
 from ecto_opencv.calib import DepthTo3d
-from image_pipeline import Rectifier, StereoModelLoader, DepthRegister, CameraModelToCv
+from image_pipeline import Rectifier, StereoModelLoader, DepthRegister, CameraModelToCv, CV_INTER_NN
 from ecto_openni import OpenNICapture, DEPTH_RGB, DEPTH_IR, RGB, IR, IRGamma
 from ecto_object_recognition.conversion import MatToPointCloudXYZRGB
 from ecto_pcl import PointCloudT2PointCloud, CloudViewer, XYZRGB
@@ -17,7 +17,7 @@ plasm = ecto.Plasm()
 
 if not openni_reg:
     rect_rgb = Rectifier()
-    rect_depth = Rectifier()
+    rect_depth = Rectifier(cx_offset=-4,cy_offset=-4,interpolation_mode=CV_INTER_NN)
     reg_depth = DepthRegister()
 
     plasm.connect(
@@ -37,25 +37,26 @@ pcl_cloud = PointCloudT2PointCloud(format=XYZRGB)
 cloud_viewer = CloudViewer()
 
 if not openni_reg:
-    plasm.connect(
-                  stereo_model['left_model'] >> camera_converter['camera'],
-                  camera_converter['Kp'] >> depthTo3d['K'],
-                  reg_depth['image'] >> depthTo3d['depth'],
-                  depthTo3d['points3d'] >> to_xyzrgb['points'],
-                  rect_rgb['image'] >> to_xyzrgb['image'],
-                  to_xyzrgb[:] >> pcl_cloud[:],
-                  pcl_cloud[:] >> cloud_viewer[:]
-                  )
+     plasm.connect(
+                   stereo_model['left_model'] >> camera_converter['camera'],
+                   camera_converter['Kp'] >> depthTo3d['K'],
+                   reg_depth['image'] >> depthTo3d['depth'],
+                   depthTo3d['points3d'] >> to_xyzrgb['points'],
+                   rect_rgb['image'] >> to_xyzrgb['image'],
+                   to_xyzrgb[:] >> pcl_cloud[:],
+                   pcl_cloud[:] >> cloud_viewer[:]
+                   )
 else:
-    plasm.connect(
-                  stereo_model['left_model'] >> camera_converter['camera'],
-                  camera_converter['K'] >> depthTo3d['K'],
-                  capture['depth'] >> depthTo3d['depth'],
-                  depthTo3d['points3d'] >> to_xyzrgb['points'],
-                  capture['image'] >> to_xyzrgb['image'],
-                  to_xyzrgb[:] >> pcl_cloud[:],
-                  pcl_cloud[:] >> cloud_viewer[:]
-                  )
+     plasm.connect(
+                   stereo_model['left_model'] >> camera_converter['camera'],
+                   camera_converter['K'] >> depthTo3d['K'],
+                   capture['depth'] >> depthTo3d['depth'],
+                   depthTo3d['points3d'] >> to_xyzrgb['points'],
+                   capture['image'] >> to_xyzrgb['image'],
+                   to_xyzrgb[:] >> pcl_cloud[:],
+                   pcl_cloud[:] >> cloud_viewer[:]
+                   )
+    
 if not openni_reg:
     #display stuff
     plasm.connect(

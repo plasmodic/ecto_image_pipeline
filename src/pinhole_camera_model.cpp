@@ -42,7 +42,7 @@ PinholeCameraModel::PinholeCameraModel()
 
 // initialize the camera model
 void
-PinholeCameraModel::setParams(cv::Size &size, Eigen::Matrix3d &K, Eigen::VectorXd &D, Eigen::Matrix3d &R, Eigen::Matrix3d &Kp)
+PinholeCameraModel::setParams(cv::Size &size, Eigen::Matrix3d &K, Eigen::VectorXd &D, Eigen::Matrix3d &R, Eigen::Matrix3d &Kp, const double ox, const double oy)
 {
   width_ = size.width;
   height_ = size.height;
@@ -54,6 +54,8 @@ PinholeCameraModel::setParams(cv::Size &size, Eigen::Matrix3d &K, Eigen::VectorX
   Kp_full_ = Kp;
   binning_x_ = 1;
   binning_y_ = 1;
+  cx_offset_ = ox;
+  cy_offset_ = oy;
 
   cache_->distortion_state = (D(0) == 0.0) ? NONE : CALIBRATED;
   cache_->full_maps_dirty;
@@ -61,7 +63,7 @@ PinholeCameraModel::setParams(cv::Size &size, Eigen::Matrix3d &K, Eigen::VectorX
 
 void
 PinholeCameraModel::setParams(cv::Size image_size, const cv::Mat& K, const cv::Mat& D, const cv::Mat& R,
-                              const cv::Mat&Kp)
+                              const cv::Mat&Kp, const double ox, const double oy)
 {
   Eigen::Matrix3d eK, eKp, eR;
   Eigen::VectorXd eD;
@@ -90,7 +92,16 @@ PinholeCameraModel::setParams(cv::Size image_size, const cv::Mat& K, const cv::M
     eKp = eK;
   else
     cv2eigen(Kp, eKp);
-  setParams(image_size, eK, eD, eR, eKp);
+  setParams(image_size, eK, eD, eR, eKp, ox, oy);
+}
+
+
+void 
+PinholeCameraModel::setCenterOffset(const double ox, const double oy)
+{
+  cx_offset_ = ox;
+  cy_offset_ = oy;
+  cache_->full_maps_dirty = true;
 }
 
 
@@ -104,6 +115,7 @@ void PinholeCameraModel::toCv(cv::Size& size,cv::Mat& K,  cv::Mat& D, cv::Mat& R
   cv::eigen2cv(R_,R);
   cv::eigen2cv(Kp_,Kp);
 }
+
 // For uint32_t, string, bool...
 template<typename T>
 bool update(const T& new_val, T& my_val)
@@ -400,7 +412,13 @@ void PinholeCameraModel::initRectificationMaps() const
     binned_resolution.width  /= binningX();
     binned_resolution.height /= binningY();
 
-    Eigen::Matrix3d K_binned, Kp_binned;
+    Eigen::Matrix3d K_binned, Kp_binned, Km;
+
+    // offset orig image K if necessary (for depth images that have x,y offset)
+    Km = K_;
+    Km(0,2) += cx_offset_;
+    Km(1,2) += cy_offset_;
+
     if (binningX() == 1 && binningY() == 1) {
       K_binned = K_full_;
       Kp_binned = Kp_full_;
@@ -426,14 +444,14 @@ void PinholeCameraModel::initRectificationMaps() const
 
     // Note: m1type=CV_16SC2 to use fast fixed-point maps (see cv::remap)
     cv::Mat K, Kp, R, D;
-    cv::eigen2cv(K_,K);
+    cv::eigen2cv(Km,K);
     cv::eigen2cv(D_,D);
     cv::eigen2cv(Kp_,Kp);
     cv::eigen2cv(R_,R);
 
-//    std::cout << K << std::endl;
-//    std::cout << R << std::endl;
-//    std::cout << D << std::endl << std::endl;
+    //    std::cout << Km << std::endl;
+    //    std::cout << R << std::endl;
+    //    std::cout << D << std::endl << std::endl;
 
     cv::initUndistortRectifyMap(K, D, R, Kp, binned_resolution,
                                 CV_16SC2, cache_->full_map1, cache_->full_map2);
