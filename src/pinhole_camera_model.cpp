@@ -40,6 +40,29 @@ PinholeCameraModel::PinholeCameraModel()
   cache_->distortion_state = NONE;
 }
 
+// inequality operator
+bool PinholeCameraModel::operator != (const PinholeCameraModel& mCamObj)
+{
+  if (mCamObj.K_ != K_ ||
+      mCamObj.R_ != R_ ||
+      mCamObj.D_ != D_ ||
+      mCamObj.Kp_ != Kp_ ||
+      mCamObj.width_ != width_ ||
+      mCamObj.height_ != height_ 
+      )
+    return true;
+  return false;
+}
+
+// clear the cache and make it local
+void PinholeCameraModel::initCache()
+{
+  // Create our repository of cached data (rectification maps, etc.)
+  cache_ = boost::make_shared<Cache>();
+  cache_->distortion_state = (D_.size() > 0 && D_(0) == 0.0) ? NONE : CALIBRATED;
+}
+
+
 // initialize the camera model
 void
 PinholeCameraModel::setParams(cv::Size &size, Eigen::Matrix3d &K, Eigen::VectorXd &D, Eigen::Matrix3d &R, Eigen::Matrix3d &Kp, const double ox, const double oy)
@@ -57,7 +80,7 @@ PinholeCameraModel::setParams(cv::Size &size, Eigen::Matrix3d &K, Eigen::VectorX
   cx_offset_ = ox;
   cy_offset_ = oy;
 
-  cache_->distortion_state = (D(0) == 0.0) ? NONE : CALIBRATED;
+  cache_->distortion_state = (D_.size() > 0 && D_(0) == 0.0) ? NONE : CALIBRATED;
   cache_->full_maps_dirty;
 }
 

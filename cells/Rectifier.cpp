@@ -26,7 +26,6 @@ namespace image_pipeline
     configure(const tendrils& params, const tendrils& in, const tendrils& out)
     {
       camera = in["camera"];    // original pinhole model
-      init = true;
       params["cx_offset"] >> cx_offset;
       params["cy_offset"] >> cy_offset;
       params["interpolation_mode"] >> mode;
@@ -36,15 +35,15 @@ namespace image_pipeline
     int process(const tendrils& /*in*/, const tendrils& /*out*/)
     {
       // this is ugly; should really compare stored rect params to incoming ones each time
-      if (init)
+      if (camoffset != *camera)
         {
           camoffset = *camera;      // modified model
+          camoffset.initCache();
           //          std::cout << "Offsets: " << cx_offset << " " << cy_offset << std::endl;
           //          std::cout << camoffset.getK() << std::endl;
           //          std::cout << camera->getK() << std::endl;
           if (cx_offset != 0 || cy_offset != 0)
             camoffset.setCenterOffset(cx_offset,cy_offset);
-          init = false;
         }
 
       cv::Mat output;
@@ -57,7 +56,6 @@ namespace image_pipeline
     InterpolationMode mode;
     PinholeCameraModel camoffset;
     int cx_offset, cy_offset;
-    bool init;
   };
 }
 

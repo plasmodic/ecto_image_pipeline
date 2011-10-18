@@ -30,6 +30,20 @@ public:
   PinholeCameraModel();
 
   /**
+   * \brief Inequality operator
+   *
+   * Compares two camera models, returns true if they differ in a critical parameter 
+   */
+  bool operator != (const PinholeCameraModel& mCamObj);
+
+  /**
+   * \brief Clear cache
+   *
+   * Clears the cache and initializes to a local pointer
+   */
+  void initCache();
+
+  /**
    * \brief Set up the rectification parameters
    *
    * Sets the various parameters for rectification and image size
@@ -290,7 +304,6 @@ protected:
   // Use PIMPL here so we can change internals in patch updates if needed
   struct Cache;
   boost::shared_ptr<Cache> cache_; // Holds cached data for internal use
-
   bool initialized() const { return cache_; }
 
   friend class StereoCameraModel;
