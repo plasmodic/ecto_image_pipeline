@@ -10,6 +10,7 @@ namespace image_pipeline
     static void
     declare_params(tendrils& params)
     {
+      params.declare(&DepthRegister::metric_, "metric","A metric scalar.",0.001);
     }
     static void
     declare_io(const tendrils& params, tendrils& in, tendrils& out)
@@ -28,12 +29,14 @@ namespace image_pipeline
     int process(const tendrils& /*in*/, const tendrils& /*out*/)
     {
       cv::Mat output;
-      rgbd_camera->registerDepthImage(*image_in,output,0.001);
+      rgbd_camera->registerDepthImage(*image_in,output,*metric_);
+
       *image_out = output;
       return ecto::OK;
     }
     ecto::spore<StereoCameraModel> rgbd_camera;
     ecto::spore<cv::Mat> image_in, image_out;
+    ecto::spore<double> metric_;
   };
 }
 

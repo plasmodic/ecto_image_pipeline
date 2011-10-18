@@ -70,4 +70,4 @@ if not openni_reg:
 
 if __name__ == '__main__':
     from ecto.opts import doit
-    doit(plasm, description='Capture Kinect depth and RGB and register them.')
+    doit(plasm, description='Capture Kinect depth and RGB and register them.',locals=vars())
