@@ -61,7 +61,7 @@ namespace image_pipeline
         if (d > 0)
         {
           Eigen::Vector4f v;
-          v << (float) j + 4, (float) i + 4, im / (float) d, 1.0f;
+          v << (float) j, (float) i, im / (float) d, 1.0f;
           Eigen::Vector4f vp = Pf * v; // transformed
           if (vp(3) > 0.0)
           {
