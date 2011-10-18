@@ -282,11 +282,7 @@ protected:
   Eigen::Matrix3d Kp_;               // Output image camera internals
   Eigen::Matrix3d Kp_full_;          // Output image camera internals, full image
   cv::Rect rect_roi_, input_roi_;    // Region of interest for image
-
- public:
   double cx_offset_, cy_offset_;     // Offset of input image from calibration image
-
- protected:
   cv::Mat rtemp_;                    // Temporary image for computation
 
   void initRectificationMaps() const;
