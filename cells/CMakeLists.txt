@@ -21,3 +21,4 @@ link_ecto(image_pipeline
   image_pipeline
 )
 
+install_ecto_module(image_pipeline)
