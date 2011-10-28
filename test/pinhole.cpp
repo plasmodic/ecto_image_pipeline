@@ -11,5 +11,4 @@ TEST(pinhole, Bogus1)
 TEST(pinhole, Serialization)
 {
   
-  EXPECT_TRUE(0 == "Fill me in.");
 }
