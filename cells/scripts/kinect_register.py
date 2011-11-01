@@ -3,11 +3,12 @@ import ecto
 from ecto_opencv.highgui import imshow
 from ecto_opencv.calib import DepthTo3d
 from image_pipeline import Rectifier, StereoModelLoader, DepthRegister, CameraModelToCv, CV_INTER_NN
-from ecto_openni import OpenNICapture, DEPTH_RGB, DEPTH_IR, RGB, IR, IRGamma
+from ecto_openni import OpenNICapture, DEPTH_RGB, DEPTH_IR, RGB, IR, IRGamma, enumerate_devices
 from ecto_object_recognition.conversion import MatToPointCloudXYZRGB
 from ecto_pcl import PointCloudT2PointCloud, CloudViewer, XYZRGB
 
-openni_reg = False
+openni_reg = True
+print enumerate_devices()
 capture = OpenNICapture(stream_mode=DEPTH_RGB, registration=openni_reg, latched=False)
 
 stereo_model = StereoModelLoader(left_fname='left.yml', right_fname="right.yml", stereo_fname='stereo.yml');
