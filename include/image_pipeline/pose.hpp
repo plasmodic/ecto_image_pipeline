@@ -4,8 +4,6 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <opencv2/core/eigen.hpp>
-
 #include <iostream>
 #include <string>
 
@@ -14,7 +12,7 @@ namespace image_pipeline
   /**
    * Simple Pose object, with a frame id, and a transform, that is assumed to
    * be the concatenation of a rotation and translation, R|T.  This transform
-   * operates on the frame specified by the frame id.
+   * operates in the frame specified by the frame id.
    */
   struct Pose
   {

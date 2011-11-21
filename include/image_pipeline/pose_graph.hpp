@@ -6,16 +6,22 @@
 
 namespace image_pipeline
 {
+  /**
+   * A simple pose graph for keeping track of frames and their relative poses.
+   * Uses the Eigen::Affine3d for the transform, string ids for the frames, and internally boost graph for the tree
+   * structure.
+   */
   struct PoseGraph: boost::noncopyable
   {
     typedef std::string frame_id;
     typedef Eigen::Affine3d transform;
     PoseGraph();
     /**
-     * Set the transform between frame a and b.  No need to set the opposite transform, will be done for you.
+     * Explicitly set the transform between frame a and b. This creates a "link" between the two.
+     * No need to set the opposite transform, will be done for you.
      * @param a
      * @param b
-     * @param t_ab the transform to use.
+     * @param t_ab the transform that goes from a to b.
      */
     void
     set(const frame_id& a, const frame_id& b, const transform & t_ab);
@@ -25,7 +31,7 @@ namespace image_pipeline
      * @param a
      * @param b
      * @param transform The output, will be meaningless if the return value is false.
-     * @return False if no transform is available.
+     * @return False if no transform exists between the two frames.
      */
     bool
     lookup(const frame_id& a, const frame_id& b, transform& transform) const;
