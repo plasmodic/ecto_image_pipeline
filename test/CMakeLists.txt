@@ -10,6 +10,7 @@ include_directories(${GTEST_INCLUDE_DIRS})
 add_executable(image_pipeline-test
   main.cpp
   pinhole.cpp
+  test_pose_graph.cpp
   )
 
 target_link_libraries(image_pipeline-test
