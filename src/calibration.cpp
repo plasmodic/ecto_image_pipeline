@@ -1,6 +1,7 @@
 #include <image_pipeline/calibration.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <image_pipeline/image_pipeline.hpp>
+#include <image_pipeline/conversions.hpp>
 namespace image_pipeline
 {
   void

@@ -2,9 +2,9 @@
 #include <stdexcept>
 namespace image_pipeline
 {
-  const static unsigned abi_version = 0; // incrementable ABI version
+  const static unsigned abi_version = 0; //ABI version
 
-  // exception to be thrown in case of detected incompatiblity
+  // exception to be thrown in case of detected incompatibility
   struct incompatible_version : std::exception
   {
     unsigned compiled_version, running_version;

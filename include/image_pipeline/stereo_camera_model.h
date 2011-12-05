@@ -57,14 +57,12 @@ public:
   /**
    * \brief Read a calibration file in YAML format
    *
-   *
    * \param filename Name of the file to read
    */
   void readCalibration(std::string filename);
 
   /**
    * \brief Write a calibration file in YAML format
-   *
    *
    * \param filename Name of the file to read
    */

@@ -35,6 +35,7 @@ add_subdirectory(src)
 
 option(BUILD_ECTO_CELLS "Build ecto cells" ON)
 if(BUILD_ECTO_CELLS)
+  add_subdirectory(python)
   add_subdirectory(cells)
 endif()
 
