@@ -7,6 +7,12 @@ namespace image_pipeline
   struct Latch
   {
     static void
+    declare_params(tendrils& params)
+    {
+      params.declare<bool>("init", "Set initial value from input.", false);
+    }
+
+    static void
     declare_io(const tendrils& params, tendrils& in, tendrils& out)
     {
       in.declare(&Latch::in_, "input", "The input to copy to the output..").required(true);
@@ -15,9 +21,22 @@ namespace image_pipeline
       out.declare(&Latch::out_, "output", "A copy of the input.");
     }
 
+    void
+    configure(const tendrils& params, const tendrils& in, const tendrils& out)
+    {
+      params["init"] >> init_;
+    }
+
     int
     process(const tendrils& in, const tendrils& out)
     {
+      if (init_)
+	{
+	  init_ = false;
+	  *out_ = *in_;
+	}
+
+
       if (*reset_)
       {
         *reset_ = false;
@@ -30,6 +49,7 @@ namespace image_pipeline
     }
     ecto::spore<T> in_, out_;
     ecto::spore<bool> set_, reset_;
+    bool init_;
   };
 }
 
