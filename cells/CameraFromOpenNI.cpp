@@ -43,15 +43,17 @@ namespace image_pipeline
     {
 
       cv::Mat K_left = createK(*focal_length_image_, *image_);
-      cv::Mat K_right = createK(*focal_length_depth_, *depth_);
       left_.setParams(image_->size(), K_left, cv::Mat(), cv::Mat_<double>::eye(3, 3), K_left, 0, 0);
-      right_.setParams(image_->size(), K_right, cv::Mat(), cv::Mat_<double>::eye(3, 3), K_left, 0, 0);
-      cam->setParams(left_, right_, Pose("/left_camera", Matrix3d::Identity(), Vector3d(*baseline_, 0, 0)));
+
+      //cv::Mat K_right = createK(*focal_length_depth_, *depth_);
+      //right_.setParams(image_->size(), K_right, cv::Mat(), cv::Mat_<double>::eye(3, 3), K_left, 0, 0);
+      //cam->setParams(left_, right_, Pose("/rgb_camera", Matrix3d::Identity(), Vector3d(*baseline_, 0, 0)));
+      *cam = left_;
       return ecto::OK;
     }
     PinholeCameraModel left_, right_;
     StereoCameraModel stereo_camera_;
-    ecto::spore<StereoCameraModel> cam;
+    ecto::spore<PinholeCameraModel> cam;
     ecto::spore<cv::Mat> depth_, image_;
     ecto::spore<float> focal_length_image_, focal_length_depth_, baseline_;
   };
