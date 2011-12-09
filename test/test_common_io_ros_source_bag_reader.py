@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-from object_recognition.common.io.ros.source import BagReader
-from object_recognition.common.io.source import _assert_source_interface
+from image_pipeline.io.source.ros import BagReader
+from image_pipeline.io.source import _assert_source_interface
 br = BagReader()
 print br.__doc__
 assert 'image_message' in br.__doc__

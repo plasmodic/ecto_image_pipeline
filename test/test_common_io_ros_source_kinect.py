@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-from object_recognition.common.io.ros.source import KinectReader
-from object_recognition.common.io.source import _assert_source_interface
-kr = KinectReader()
+from image_pipeline.io.source.ros import OpenNISubscriber
+from image_pipeline.io.source import _assert_source_interface
+kr = OpenNISubscriber()
 
 assert 'image_message' in kr.__doc__
 assert 'depth' in kr.__doc__
