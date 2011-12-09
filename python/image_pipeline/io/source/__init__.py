@@ -48,7 +48,7 @@ def _assert_source_interface(cell):
     '''
     outputs = dir(cell.outputs)
     #all sources must produce the following
-    for x in ('K', 'image', 'depth', 'points3d', 'camera'):
+    for x in ('K', 'image', 'depth', 'points3d'):
         if x not in outputs:
             raise NotImplementedError('This cell does not correctly implement the source interface. Must have an output named %s' % x)
     #type checks

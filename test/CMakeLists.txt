@@ -34,3 +34,7 @@ option(DESKTOP_TEST "Desktop tests will attempt to run tests that may require gr
 if(DESKTOP_TEST)
     pytest(test_source --niter 100)
 endif()
+
+pytest(test_common_io_ros_source_kinect)
+pytest(test_common_io_ros_source_bag_reader)
+
