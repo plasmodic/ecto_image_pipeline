@@ -55,7 +55,9 @@ else:
                    depthTo3d['points3d'] >> to_xyzrgb['points'],
                    capture['image'] >> to_xyzrgb['image'],
                    to_xyzrgb[:] >> pcl_cloud[:],
-                   pcl_cloud[:] >> cloud_viewer[:]
+                   pcl_cloud[:] >> cloud_viewer[:],
+                   capture['image'] >> imshow(name='rgb')[:],
+                   capture['depth'] >> imshow(name='depth')[:]
                    )
     
 if not openni_reg:
