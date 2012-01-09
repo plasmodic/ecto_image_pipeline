@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 project(image_pipeline)
+find_package(catkin REQUIRED)
+catkin_stack(image_pipeline)
+
 set(image_pipeline_MAJOR_VERSION 0)
 set(image_pipeline_MINOR_VERSION 1)
 set(image_pipeline_PATCH_VERSION 0)
@@ -48,3 +51,8 @@ endif()
 #these setup the lib to be used by others
 include(cmake/install.cmake)
 include(cmake/config.cmake)
+
+
+
+
+catkin_add_env_hooks(10image_pipeline.buildspace.sh 10image_pipeline.install.sh)
