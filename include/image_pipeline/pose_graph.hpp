@@ -14,7 +14,25 @@ namespace image_pipeline
   struct PoseGraph: boost::noncopyable
   {
     typedef std::string frame_id;
-    typedef Eigen::Affine3d transform;
+    class transform : public Eigen::Affine3d {
+    public:
+      transform() {
+        // This is needed has m_matrix is otherwise uninitialized and some Eigen warning appear on 32 bits
+        // and are perceived as an error with -Werror
+        this->m_matrix.setIdentity();
+      }
+      transform(const Eigen::Affine3d & other) {
+        this->m_matrix = other.matrix();
+      }
+      transform & operator=(const transform & other) {
+        m_matrix = other.m_matrix;
+        return *this;
+      }
+      transform & operator=(const Eigen::Affine3d & other) {
+        m_matrix = other.matrix();
+        return *this;
+      }
+    };
     PoseGraph();
     /**
      * Explicitly set the transform between frame a and b. This creates a "link" between the two.

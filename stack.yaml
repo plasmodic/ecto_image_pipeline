@@ -1,0 +1,13 @@
+Catkin-ProjectName: image_pipeline
+Version: 0.1.1
+Description: Common tools for image based pipelines. Includes stereo and mono camera drivers,
+  rectification, image sinks, calibration, etc..
+
+Author: Kurt Konolige, Ethan Rublee <erublee@willowgarage.com>
+Maintainer:  Ethan Rublee <erublee@willowgarage.com>
+Homepage:  http://ecto.willowgarage.com
+
+Depends: catkin, boost, ecto, opencv
+
+Catkin-CopyrightType:  willowgarage
+
