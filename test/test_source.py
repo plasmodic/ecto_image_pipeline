@@ -3,7 +3,7 @@
 import ecto
 from ecto_opencv.highgui import imshow
 from image_pipeline.io.source import create_source
-from ecto_object_recognition.conversion import MatToPointCloudXYZRGB
+from image_pipeline_conversion import MatToPointCloudXYZRGB
 from ecto_pcl import PointCloudT2PointCloud, CloudViewer, XYZRGB
 from ecto.opts import run_plasm, cell_options, scheduler_options
 import argparse
