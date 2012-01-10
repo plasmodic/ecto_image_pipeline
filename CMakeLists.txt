@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(image_pipeline)
 find_package(catkin REQUIRED)
 catkin_stack(image_pipeline)
-
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(image_pipeline_MAJOR_VERSION 0)
 set(image_pipeline_MINOR_VERSION 1)
 set(image_pipeline_PATCH_VERSION 0)
