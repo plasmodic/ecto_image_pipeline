@@ -26,6 +26,8 @@ class OpenNISource(ecto.BlackBox):
         o.forward('depth', cell_name='_depth_map', cell_key='depth',
                   doc='The depth map from a OpenNI device.' +
                   ' This is a CV_32FC1, with values in meters.')
+        o.forward('depth_raw',cell_name='_source',cell_key='depth',
+                        doc='The 16bit depth image.')
         o.forward('K', cell_name='_source', cell_key='K',
                   doc='The camera intrinsics matrix.')
         o.forward('points3d', cell_name='_points3d')
