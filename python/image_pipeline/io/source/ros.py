@@ -4,8 +4,6 @@ Module defining several inputs for the object recognition pipeline
 import ecto
 import ecto_ros
 import ecto_sensor_msgs
-
-
 from ecto_opencv.calib import DepthTo3d, DepthMask
 from image_pipeline import RescaledRegisteredDepth
 from image_pipeline.io.source import CameraType

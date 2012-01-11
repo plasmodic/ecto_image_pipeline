@@ -16,8 +16,11 @@ def load_source(m_name, source_type):
     m = __import__(m_name)
     ms = [m]
     for loader, module_name, is_pkg in pkgutil.walk_packages(m.__path__):
-        module = loader.find_module(module_name).load_module(module_name)
-        ms.append(module)
+        try:
+            module = loader.find_module(module_name).load_module(module_name)
+            ms.append(module)
+        except ImportError as e:
+            pass
     for pymodule in ms:
         for x in dir(pymodule):
             potential_source = getattr(pymodule, x)
