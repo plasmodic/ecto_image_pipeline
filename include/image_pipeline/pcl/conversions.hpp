@@ -34,7 +34,7 @@ namespace image_pipeline
       }
 
       cv::Point3f p = *point_it;
-      if (p.x != p.x && p.y != p.y && p.z != p.z) //throw out NANs
+      if (p.x != p.x || p.y != p.y || p.z != p.z) //throw out NANs
         continue;
       pcl::PointXYZRGB cp;
       cp.x = p.x;
@@ -59,12 +59,13 @@ namespace image_pipeline
     cv::Mat_<uchar>::const_iterator mask_it;
     if (has_mask)
       mask_it = mask.begin<uchar>();
+    cloud.reserve(cloud.width*cloud.height);
     for (; point_it != point_end; ++point_it, (has_mask ? ++mask_it : mask_it))
     {
       if (has_mask && !*mask_it)
         continue;
       cv::Point3f p = *point_it;
-      if (p.x != p.x && p.y != p.y && p.z != p.z) //throw out NANs
+      if (p.x != p.x || p.y != p.y || p.z != p.z) //throw out NANs
         continue;
       PointT cp;
       cp.x = p.x;
