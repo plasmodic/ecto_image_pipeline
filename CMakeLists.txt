@@ -30,7 +30,7 @@ find_package(OpenCV REQUIRED)
 
 include_directories(
   include
-  ${EIGEN_INCLUDE_DIRS}
+  ${Eigen_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   )
 
