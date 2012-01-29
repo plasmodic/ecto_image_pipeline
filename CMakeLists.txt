@@ -6,10 +6,10 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(image_pipeline_MAJOR_VERSION 0)
 set(image_pipeline_MINOR_VERSION 1)
 set(image_pipeline_PATCH_VERSION 0)
-set(image_pipeline_SOVERSION 
+set(image_pipeline_SOVERSION
   ${image_pipeline_MAJOR_VERSION}.${image_pipeline_MINOR_VERSION}
 )
-set(image_pipeline_VERSION 
+set(image_pipeline_VERSION
   ${image_pipeline_MAJOR_VERSION}.${image_pipeline_MINOR_VERSION}.${image_pipeline_PATCH_VERSION}
 )
 
@@ -55,4 +55,4 @@ include(cmake/config.cmake)
 
 
 
-catkin_add_env_hooks(10image_pipeline.buildspace.sh 10image_pipeline.install.sh)
+catkin_add_env_hooks(10image_pipeline SHELLS all)
