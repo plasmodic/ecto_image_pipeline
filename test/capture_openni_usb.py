@@ -11,7 +11,7 @@ import os
 import time
 
 parser = argparse.ArgumentParser(description='Saves images from a connect on keystroke.')
-parser.add_argument('-o,--output', dest='output', help='The output directory. Default: %(default)s', default='./images/%d'%(int(time.time())))
+parser.add_argument('-o,--output', dest='output', help='The output directory. Default: %(default)s', default='./images/%s'%(time.strftime('%Y-%b-%d-%H.%M.%S')))
 parser.add_argument('-d,--device', dest='device', default=0, help='The video device number. Default: %(default)s')
 parser.add_argument('--width',dest='width',default=640)
 parser.add_argument('--height',dest='height',default=480)
