@@ -24,7 +24,7 @@ add_test(image_pipeline-test ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/image_pipeline-te
 
 macro(pytest pyfile)
   string(REPLACE ";" " " args "${ARGN}")
-  
+
   add_test(image_pipeline_${pyfile}
     ${CMAKE_CURRENT_SOURCE_DIR}/run_test.py ${CMAKE_BINARY_DIR}/python_path.sh ${CMAKE_CURRENT_SOURCE_DIR}/${pyfile}.py ${ARGN}
     )
@@ -35,6 +35,7 @@ if(DESKTOP_TEST)
     pytest(test_source --niter 100)
 endif()
 
-pytest(test_common_io_ros_source_kinect)
-pytest(test_common_io_ros_source_bag_reader)
-
+if(ROS_TEST)
+  pytest(test_common_io_ros_source_kinect)
+  pytest(test_common_io_ros_source_bag_reader)
+endif()
