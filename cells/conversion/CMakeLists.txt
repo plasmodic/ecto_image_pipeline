@@ -1,4 +1,4 @@
-find_ros_package(pcl) #find the ros version of pcl for now.
+find_package(PCL)
 
 if(NOT pcl_FOUND)
 message(STATUS "pcl could not be found, so not building conversion cells.")
