@@ -3,8 +3,6 @@ if(NOT ecto_FOUND)
   return()
 endif()
 
-ecto_python_env_gen(${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR}/../python)
-
 
 ectomodule(image_pipeline
    module.cpp
