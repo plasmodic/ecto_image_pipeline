@@ -1,10 +1,10 @@
 find_package(PCL)
 
-if(NOT pcl_FOUND)
-message(STATUS "pcl could not be found, so not building conversion cells.")
+if(NOT PCL_FOUND)
+message(WARNING "PCL could not be found, so not building conversion cells.")
 return()
 endif()
-
+include_directories(${PCL_INCLUDE_DIRS})
 ectomodule(image_pipeline_conversion
   module.cpp
   MatToPointCloud.cpp

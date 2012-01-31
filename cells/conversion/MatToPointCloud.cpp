@@ -53,9 +53,12 @@ namespace image_pipeline
 {
   namespace conversion
   {
-    /** Ecto implementation of a module that takes a point cloud as an input and stacks it in a matrix of floats:
-     * - if the point cloud is organized, the return a matrix is width by height with 3 channels (for x, y and z)
-     * - if the point cloud is unorganized, the return a matrix is n_point by 1 with 3 channels (for x, y and z)
+    /** Ecto implementation of a module that takes a point cloud as
+        an input and stacks it in a matrix of floats:
+        - if the point cloud is organized, the return
+          a matrix is width by height with 3 channels (for x, y and z)
+        - if the point cloud is unorganized, the
+          return a matrix is n_point by 1 with 3 channels (for x, y and z)
      */
     struct MatToPointCloudXYZ
     {
@@ -68,8 +71,10 @@ namespace image_pipeline
       static void
       declare_io(const tendrils& params, tendrils& inputs, tendrils& outputs)
       {
-        inputs.declare(&MatToPointCloudXYZ::points3d, "points", "The width by height by 3 channels (x, y and z)");
-        outputs.declare(&MatToPointCloudXYZ::cloud_out, "point_cloud", "The XYZ point cloud");
+        inputs.declare(&MatToPointCloudXYZ::points3d, "points",
+                       "The width by height by 3 channels (x, y and z)");
+        outputs.declare(&MatToPointCloudXYZ::cloud_out, "point_cloud",
+                        "The XYZ point cloud");
       }
 
       int
