@@ -1,4 +1,4 @@
-find_package(PCL)
+find_package(PCL QUIET)
 
 if(NOT PCL_FOUND)
 message(WARNING "PCL could not be found, so not building conversion cells.")
