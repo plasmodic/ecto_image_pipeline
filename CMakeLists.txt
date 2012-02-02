@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(image_pipeline)
 find_package(catkin REQUIRED)
 catkin_stack(image_pipeline)
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(image_pipeline_MAJOR_VERSION 0)
 set(image_pipeline_MINOR_VERSION 1)
@@ -12,17 +13,6 @@ set(image_pipeline_SOVERSION
 set(image_pipeline_VERSION
   ${image_pipeline_MAJOR_VERSION}.${image_pipeline_MINOR_VERSION}.${image_pipeline_PATCH_VERSION}
 )
-
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
-      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-      FORCE)
-endif()
-
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-add_definitions("-Wall -Werror")
 
 find_package(Boost REQUIRED)
 find_package(Eigen REQUIRED)
@@ -52,7 +42,7 @@ endif()
 include(cmake/install.cmake)
 include(cmake/config.cmake)
 
-
+sphinx(${CMAKE_CURRENT_SOURCE_DIR}/doc doc)
 
 
 catkin_add_env_hooks(10image_pipeline SHELLS all)

@@ -38,7 +38,7 @@ build it
   % make
 
 test it
-^^^^^^
+^^^^^^^
 ::
 
   % cd image_pipeline/build
