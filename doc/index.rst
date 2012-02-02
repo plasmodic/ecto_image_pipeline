@@ -48,3 +48,11 @@ test it
 use it
 ^^^^^^
 See samples/user_project for a project that uses image_pipeline
+
+
+
+Cells
+-----
+
+
+.. ectomodule:: image_pipeline
