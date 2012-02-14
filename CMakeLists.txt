@@ -42,7 +42,7 @@ endif()
 include(cmake/install.cmake)
 include(cmake/config.cmake)
 
-sphinx(${CMAKE_CURRENT_SOURCE_DIR}/doc doc)
+catkin_sphinx(${CMAKE_CURRENT_SOURCE_DIR}/doc doc)
 
 
 catkin_add_env_hooks(10image_pipeline SHELLS all)
