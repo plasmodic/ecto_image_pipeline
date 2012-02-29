@@ -13,6 +13,16 @@ def load_source(m_name, source_type):
     :param modules: A list of python package names, e.g. ['object_recognition']
     :returns: A list of TrainingPipeline implementation classes.
     '''
+    if m_name == 'image_pipeline':
+        if source_type == 'OpenNISource':
+            from .openni import OpenNISource
+            return OpenNISource
+        if source_type == 'OpenNISubscriber':
+            from .ros import OpenNISubscriber
+            return OpenNISubscriber
+        if source_type == 'BagReader':
+            from .ros import BagReader
+            return BagReader
     m = __import__(m_name)
     ms = [m]
     for loader, module_name, is_pkg in pkgutil.walk_packages(m.__path__):
@@ -47,7 +57,7 @@ def create_source(package_name, source_type, **kwargs):
 #testing user interface interface
 def _assert_source_interface(cell):
     ''' This ensures that the given cell exhibits the minimal interface to be
-    considered a source for object recogntion
+    considered a source for object recognition
     '''
     outputs = dir(cell.outputs)
     #all sources must produce the following
