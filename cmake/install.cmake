@@ -1,12 +1,11 @@
-set(prefix image_pipeline-${image_pipeline_VERSION})
 install(DIRECTORY ${image_pipeline_SOURCE_DIR}/include/
-  DESTINATION include/${prefix}
+  DESTINATION include
   COMPONENT main
   )
 
 #install the unix_install
 install(DIRECTORY ${image_pipeline_BINARY_DIR}/share/
-  DESTINATION share/${prefix}
-  COMPONENT main
-  )
+        DESTINATION share/image_pipeline
+        COMPONENT main
+)
 

@@ -10,7 +10,7 @@ configure_file(cmake/image_pipelineConfig-version.cmake.in
 )
 
 #this is a bit simple.
-set(image_pipeline_INCLUDE_DIRS ${CMAKE_INSTALL_PREFIX}/include/${prefix})
+set(image_pipeline_INCLUDE_DIRS ${CMAKE_INSTALL_PREFIX}/include/image_pipeline)
 set(image_pipeline_LIBRARIES ${CMAKE_INSTALL_PREFIX}/lib/libimage_pipeline.so)
 configure_file(cmake/image_pipelineConfig.cmake.in
     ${image_pipeline_BINARY_DIR}/share/image_pipelineConfig.cmake
