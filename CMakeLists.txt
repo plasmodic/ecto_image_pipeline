@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(image_pipeline)
 find_package(catkin REQUIRED)
-catkin_stack(image_pipeline)
+catkin_stack()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(image_pipeline_MAJOR_VERSION 0)
@@ -28,6 +28,7 @@ add_subdirectory(src)
 
 option(BUILD_ECTO_CELLS "Build ecto cells" ON)
 if(BUILD_ECTO_CELLS)
+  find_package(ecto REQUIRED)
   add_subdirectory(python)
   add_subdirectory(cells)
 endif()
