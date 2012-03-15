@@ -2,8 +2,8 @@ import ecto
 
 from ecto_opencv.calib import DepthTo3d, DepthMask
 from ecto_openni import OpenNICapture
-from image_pipeline import RescaledRegisteredDepth, CameraFromOpenNI
-from image_pipeline.io.source import CameraType
+from ecto_image_pipeline.base import RescaledRegisteredDepth, CameraFromOpenNI
+from ecto_image_pipeline.io.source import CameraType
 
 class OpenNISource(ecto.BlackBox):
     """
