@@ -4,7 +4,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
-#include <image_pipeline/image_pipeline.hpp>
+#include "image_pipeline.hpp"
 
 #include <Eigen/StdVector>
 

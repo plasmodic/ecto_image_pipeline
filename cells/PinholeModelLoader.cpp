@@ -1,5 +1,5 @@
 #include <ecto/ecto.hpp>
-#include <image_pipeline/pinhole_camera_model.h>
+#include <ecto_image_pipeline/pinhole_camera_model.h>
 
 #include <iostream>
 

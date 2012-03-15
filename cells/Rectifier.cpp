@@ -1,6 +1,6 @@
 #include <ecto/ecto.hpp>
-#include <image_pipeline/pinhole_camera_model.h>
-#include <image_pipeline/enums.hpp>
+#include <ecto_image_pipeline/pinhole_camera_model.h>
+#include <ecto_image_pipeline/enums.hpp>
 
 using ecto::tendrils;
 

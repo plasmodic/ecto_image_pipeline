@@ -1,18 +1,14 @@
 cmake_minimum_required(VERSION 2.8)
-project(image_pipeline)
+project(ecto_image_pipeline)
 find_package(catkin REQUIRED)
 catkin_stack()
+catkin_project(ecto_image_pipeline
+               INCLUDE_DIRS include
+               LIBRARIES ecto_image_pipeline
+               DEPENDS Boost Eigen OpenCV
+)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-set(image_pipeline_MAJOR_VERSION 0)
-set(image_pipeline_MINOR_VERSION 1)
-set(image_pipeline_PATCH_VERSION 0)
-set(image_pipeline_SOVERSION
-  ${image_pipeline_MAJOR_VERSION}.${image_pipeline_MINOR_VERSION}
-)
-set(image_pipeline_VERSION
-  ${image_pipeline_MAJOR_VERSION}.${image_pipeline_MINOR_VERSION}.${image_pipeline_PATCH_VERSION}
-)
 
 find_package(Boost REQUIRED)
 find_package(Eigen REQUIRED)
@@ -41,9 +37,8 @@ endif()
 
 #these setup the lib to be used by others
 include(cmake/install.cmake)
-include(cmake/config.cmake)
 
 #catkin_sphinx(${CMAKE_CURRENT_SOURCE_DIR}/doc doc)
 
 
-catkin_add_env_hooks(10image_pipeline SHELLS all)
+catkin_add_env_hooks(10.image_pipeline SHELLS all)

@@ -1,4 +1,4 @@
-#include <image_pipeline/abi.hpp>
+#include <ecto_image_pipeline/abi.hpp>
 #include <stdexcept>
 
 namespace  image_pipeline {

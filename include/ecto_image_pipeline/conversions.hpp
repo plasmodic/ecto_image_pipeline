@@ -1,7 +1,8 @@
 #pragma once
-#include <image_pipeline/abi.hpp>
-#include <image_pipeline/pose.hpp>
+
 #include <opencv2/core/eigen.hpp>
+
+#include "pose.hpp"
 
 namespace image_pipeline
 {

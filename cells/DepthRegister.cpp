@@ -1,5 +1,5 @@
 #include <ecto/ecto.hpp>
-#include <image_pipeline/stereo_camera_model.h>
+#include <ecto_image_pipeline/stereo_camera_model.h>
 
 using ecto::tendrils;
 

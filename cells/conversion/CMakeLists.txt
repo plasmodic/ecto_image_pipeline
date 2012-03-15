@@ -9,17 +9,17 @@ include_directories(SYSTEM
                     ${PCL_INCLUDE_DIRS}
 )
 
-ectomodule(image_pipeline_conversion
+ectomodule(ecto_image_pipeline_conversion
   module.cpp
   MatToPointCloud.cpp
   PointCloudToDepthMat.cpp
   PointCloudToMat.cpp
   )
 
-link_ecto(image_pipeline_conversion
+link_ecto(ecto_image_pipeline_conversion
   ${OpenCV_LIBS}
   ${PCL_LIBRARIES}
   ${Boost_LIBRARIES}
   )
 
-install_ecto_module(image_pipeline_conversion)
+install_ecto_module(ecto_image_pipeline_conversion)

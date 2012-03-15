@@ -1,4 +1,7 @@
-#include <image_pipeline/conversions.hpp>
+#include <Eigen/Core>
+
+#include <ecto_image_pipeline/conversions.hpp>
+
 namespace image_pipeline
 {
   void

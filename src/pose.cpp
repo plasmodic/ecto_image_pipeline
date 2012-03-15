@@ -1,4 +1,4 @@
-#include <image_pipeline/pose.hpp>
+#include <ecto_image_pipeline/pose.hpp>
 
 namespace image_pipeline
 {

@@ -1,9 +1,12 @@
-#include "image_pipeline/pinhole_camera_model.h"
-#include <boost/make_shared.hpp>
 #include <exception>
 #include <iostream>
 
+#include <boost/make_shared.hpp>
+
+#include <Eigen/Core>
 #include <opencv2/core/eigen.hpp>
+
+#include <ecto_image_pipeline/pinhole_camera_model.h>
 
 
 namespace image_pipeline {

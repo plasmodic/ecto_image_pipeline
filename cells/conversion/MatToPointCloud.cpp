@@ -45,7 +45,7 @@
 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
-#include <image_pipeline/pcl/conversions.hpp>
+#include <ecto_image_pipeline/pcl/conversions.hpp>
 
 using ecto::tendrils;
 

@@ -4,8 +4,8 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
-#include <image_pipeline/image_pipeline.hpp>
-#include <image_pipeline/pinhole_camera_model.h>
+#include <ecto_image_pipeline/image_pipeline.hpp>
+#include <ecto_image_pipeline/pinhole_camera_model.h>
 
 #include <Eigen/StdVector>
 

@@ -1,4 +1,4 @@
-#include <image_pipeline/pose_graph.hpp>
+#include <ecto_image_pipeline/pose_graph.hpp>
 #define BOOST_NO_HASH
 
 #include <boost/graph/graph_traits.hpp>

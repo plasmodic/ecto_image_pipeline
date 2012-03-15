@@ -4,7 +4,7 @@ if(NOT ecto_FOUND)
 endif()
 
 
-ectomodule(image_pipeline
+ectomodule(ecto_image_pipeline
    module.cpp
    StereoCalibration.cpp
    PinholeModelLoader.cpp
@@ -18,10 +18,10 @@ ectomodule(image_pipeline
    CameraFromOpenNI.cpp
 )
 
-link_ecto(image_pipeline
-  image_pipeline
+link_ecto(ecto_image_pipeline
+          ecto_image_pipeline
 )
 
-install_ecto_module(image_pipeline)
+install_ecto_module(ecto_image_pipeline)
 
 add_subdirectory(conversion)

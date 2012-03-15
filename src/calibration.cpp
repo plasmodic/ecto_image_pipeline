@@ -1,7 +1,9 @@
-#include <image_pipeline/calibration.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
-#include <image_pipeline/image_pipeline.hpp>
-#include <image_pipeline/conversions.hpp>
+
+#include <ecto_image_pipeline/calibration.hpp>
+#include <ecto_image_pipeline/conversions.hpp>
+#include <ecto_image_pipeline/image_pipeline.hpp>
+
 namespace image_pipeline
 {
   void

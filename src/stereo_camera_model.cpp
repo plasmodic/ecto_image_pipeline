@@ -1,4 +1,4 @@
-#include "image_pipeline/stereo_camera_model.h"
+#include <ecto_image_pipeline/stereo_camera_model.h>
 #include <boost/make_shared.hpp>
 #include <exception>
 #include <iostream>

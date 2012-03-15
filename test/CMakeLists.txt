@@ -14,10 +14,10 @@ add_executable(image_pipeline-test
   )
 
 target_link_libraries(image_pipeline-test
-  image_pipeline
-  ${OpenCV_LIBS}
-  ${GTEST_LIBRARIES}
-  )
+                      ecto_image_pipeline
+                      ${OpenCV_LIBS}
+                      ${GTEST_LIBRARIES}
+)
 
 add_test(image_pipeline-test ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/image_pipeline-test)
 

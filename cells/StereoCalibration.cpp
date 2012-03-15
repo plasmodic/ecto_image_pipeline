@@ -5,8 +5,8 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <boost/filesystem.hpp>
-#include <image_pipeline/image_pipeline.hpp>
-#include <image_pipeline/calibration.hpp>
+#include <ecto_image_pipeline/image_pipeline.hpp>
+#include <ecto_image_pipeline/calibration.hpp>
 using ecto::tendrils;
 namespace image_pipeline
 {
