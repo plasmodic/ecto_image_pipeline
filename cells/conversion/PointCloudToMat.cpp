@@ -98,8 +98,7 @@ namespace image_pipeline
   }
 }
 
-ECTO_CELL(
-    image_pipeline_conversion,
+ECTO_CELL(conversion,
     image_pipeline::conversion::PointCloudToMat,
     "PointCloudToMat",
     "Given a point cloud, stack it to a matrix of floats:\n- if the point cloud is organized, the return a matrix is width by height with 3 channels (for x, y and z)\n- if the point cloud is unorganized, the return a matrix is n_point by 1 with 3 channels (for x, y and z)");

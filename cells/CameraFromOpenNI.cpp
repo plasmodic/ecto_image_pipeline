@@ -59,5 +59,5 @@ namespace image_pipeline
   };
 }
 
-ECTO_CELL( image_pipeline, image_pipeline::CameraFromOpenNI, "CameraFromOpenNI",
+ECTO_CELL(base, image_pipeline::CameraFromOpenNI, "CameraFromOpenNI",
           "Creates a camera model from an OpenNI source.");

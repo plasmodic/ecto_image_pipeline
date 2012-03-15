@@ -35,6 +35,6 @@
 
 #include <ecto/ecto.hpp>
 
-ECTO_DEFINE_MODULE(image_pipeline_conversion)
+ECTO_DEFINE_MODULE(conversion)
 {
 }

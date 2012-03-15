@@ -4,7 +4,7 @@
 
 using namespace image_pipeline;
 
-ECTO_DEFINE_MODULE(image_pipeline){
+ECTO_DEFINE_MODULE(base){
   boost::python::enum_<InterpolationMode>("InterpolationMode")
     .value("CV_INTER_NN",image_pipeline::CV_INTER_NN)
     .value("CV_INTER_LINEAR",image_pipeline::CV_INTER_LINEAR)

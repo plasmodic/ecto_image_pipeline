@@ -62,5 +62,5 @@ namespace image_pipeline
     ecto::spore<cv::Mat> image_in, depth_in, depth_out;
   };
 }
-ECTO_CELL(image_pipeline, image_pipeline::RescaledRegisteredDepth, "RescaledRegisteredDepth",
+ECTO_CELL(base, image_pipeline::RescaledRegisteredDepth, "RescaledRegisteredDepth",
           "Rescale the openni depth image to be the same size as the image if necessary.");

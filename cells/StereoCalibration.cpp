@@ -46,7 +46,7 @@ namespace image_pipeline
     ecto::spore<cv::Mat> image_;
   };
 }
-ECTO_CELL(image_pipeline, image_pipeline::StereoCalibration, "StereoCalibration",
+ECTO_CELL(base, image_pipeline::StereoCalibration, "StereoCalibration",
           "Accumulates observed points and ideal 3d points, and runs "
           "opencv calibration routines after some number of "
           "satisfactorily unique observations.");

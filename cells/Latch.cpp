@@ -53,7 +53,7 @@ namespace image_pipeline
   };
 }
 
-ECTO_CELL(image_pipeline, image_pipeline::Latch<bool>, "LatchBool", "Latch a bool.");
+ECTO_CELL(base, image_pipeline::Latch<bool>, "LatchBool", "Latch a bool.");
 
-ECTO_CELL(image_pipeline, image_pipeline::Latch<cv::Mat>, "LatchMat", "Latch a cv::Mat.");
+ECTO_CELL(base, image_pipeline::Latch<cv::Mat>, "LatchMat", "Latch a cv::Mat.");
 

@@ -50,6 +50,5 @@ namespace image_pipeline
   };
 }
 
-ECTO_CELL(
-    image_pipeline, image_pipeline::StereoModelLoader, "StereoModelLoader",
+ECTO_CELL(base, image_pipeline::StereoModelLoader, "StereoModelLoader",
     "This reads a stereo camera calibration file and two monocular cal files, and puts the results on the outputs.");

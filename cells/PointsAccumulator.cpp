@@ -27,8 +27,8 @@ namespace image_pipeline
   };
 }
 
-ECTO_CELL(image_pipeline, image_pipeline::PointsAccumulator<cv::Point2f>, "Points2DAccumulator",
+ECTO_CELL(base, image_pipeline::PointsAccumulator<cv::Point2f>, "Points2DAccumulator",
           "Accumulates 2D points.");
 
-ECTO_CELL(image_pipeline, image_pipeline::PointsAccumulator<cv::Point3f>, "Points3DAccumulator",
+ECTO_CELL(base, image_pipeline::PointsAccumulator<cv::Point3f>, "Points3DAccumulator",
           "Accumulates 3D points.");

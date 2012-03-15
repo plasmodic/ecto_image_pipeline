@@ -118,5 +118,5 @@ namespace image_pipeline
   }
 }
 
-ECTO_CELL(image_pipeline_conversion, image_pipeline::conversion::PointCloudToDepthMat, "PointCloudToDepthMat",
+ECTO_CELL(conversion, image_pipeline::conversion::PointCloudToDepthMat, "PointCloudToDepthMat",
           "Given a point cloud returns a depth cv::Mat (just the z of the points)");

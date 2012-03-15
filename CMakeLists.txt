@@ -25,6 +25,8 @@ add_subdirectory(src)
 option(BUILD_ECTO_CELLS "Build ecto cells" ON)
 if(BUILD_ECTO_CELLS)
   find_package(ecto REQUIRED)
+  set(python_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PYTHON_PACKAGES_PATH}/ecto_image_pipeline)
+
   add_subdirectory(python)
   add_subdirectory(cells)
 endif()

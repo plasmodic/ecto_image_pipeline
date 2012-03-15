@@ -5,3 +5,7 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ecto_image_pipeline
   FILES_MATCHING PATTERN "*.py"
 )
 
+configure_file(__init__.py.in
+               ${python_LIBRARY_OUTPUT_DIRECTORY}/__init__.py
+               @ONLY
+)

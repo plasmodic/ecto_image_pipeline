@@ -147,9 +147,9 @@ namespace image_pipeline
   }
 }
 
-ECTO_CELL( image_pipeline_conversion, image_pipeline::conversion::MatToPointCloudXYZ, "MatToPointCloudXYZ",
+ECTO_CELL(conversion, image_pipeline::conversion::MatToPointCloudXYZ, "MatToPointCloudXYZ",
           "Given a cv::Mat, convert it to pcl::PointCloud<pcl::PointXYZ>.");
-ECTO_CELL( image_pipeline_conversion, image_pipeline::conversion::MatToPointCloudXYZOrganized, "MatToPointCloudXYZOrganized",
+ECTO_CELL(conversion, image_pipeline::conversion::MatToPointCloudXYZOrganized, "MatToPointCloudXYZOrganized",
           "Given a cv::Mat, convert it to an organized pcl::PointCloud<pcl::PointXYZ>.");
-ECTO_CELL( image_pipeline_conversion, image_pipeline::conversion::MatToPointCloudXYZRGB, "MatToPointCloudXYZRGB",
+ECTO_CELL(conversion, image_pipeline::conversion::MatToPointCloudXYZRGB, "MatToPointCloudXYZRGB",
           "Given a cv::Mat, convert it to pcl::PointCloud<pcl::PointXYZRGB>.");

@@ -27,5 +27,5 @@ namespace image_pipeline
   };
 }
 
-ECTO_CELL(image_pipeline, image_pipeline::PinholeModelLoader, "PinholeModelLoader",
+ECTO_CELL(base, image_pipeline::PinholeModelLoader, "PinholeModelLoader",
           "This reads a monocular camera calibration file and puts the results on the output.");

@@ -22,4 +22,13 @@ link_ecto(ecto_image_pipeline_conversion
   ${Boost_LIBRARIES}
   )
 
-install_ecto_module(ecto_image_pipeline_conversion)
+set_target_properties(ecto_image_pipeline_conversion_ectomodule PROPERTIES
+                      LIBRARY_OUTPUT_DIRECTORY ${python_LIBRARY_OUTPUT_DIRECTORY}
+                      OUTPUT_NAME conversion
+                      PREFIX ""
+)
+
+
+install(TARGETS ecto_image_pipeline_conversion_ectomodule
+        DESTINATION ${PYTHON_PACKAGES_PATH}/ecto_image_pipeline
+)

@@ -34,5 +34,5 @@ namespace image_pipeline
   };
 }
 
-ECTO_CELL( image_pipeline, image_pipeline::CameraModelToCv, "CameraModelToCv",
+ECTO_CELL(base, image_pipeline::CameraModelToCv, "CameraModelToCv",
           "Expands an image_pipeline camera to opencv types.");
