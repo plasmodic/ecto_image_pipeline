@@ -15,6 +15,11 @@ find_package(Eigen REQUIRED)
 find_package(OpenCV REQUIRED)
 
 include_directories(include)
+install(DIRECTORY ${ecto_image_pipeline_SOURCE_DIR}/include/
+        DESTINATION include
+        COMPONENT main
+)
+
 include_directories(SYSTEM
   ${Eigen_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
@@ -36,9 +41,6 @@ if(BUILD_TEST)
   enable_testing()
   add_subdirectory(test)
 endif()
-
-#these setup the lib to be used by others
-include(cmake/install.cmake)
 
 #catkin_sphinx(${CMAKE_CURRENT_SOURCE_DIR}/doc doc)
 
