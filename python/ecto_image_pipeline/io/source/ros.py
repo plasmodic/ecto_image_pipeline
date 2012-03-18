@@ -5,8 +5,8 @@ import ecto
 import ecto_ros.ecto_ros as ecto_ros
 import ecto_ros.ecto_sensor_msgs as ecto_sensor_msgs
 from ecto_opencv.calib import DepthTo3d, DepthMask
-from image_pipeline import RescaledRegisteredDepth
-from image_pipeline.io.source import CameraType
+from ecto_image_pipeline.base import RescaledRegisteredDepth
+from ecto_image_pipeline.io.source import CameraType
 
 ImageSub = ecto_sensor_msgs.Subscriber_Image
 CameraInfoSub = ecto_sensor_msgs.Subscriber_CameraInfo
