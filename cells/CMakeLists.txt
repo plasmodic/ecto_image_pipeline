@@ -22,14 +22,10 @@ link_ecto(ecto_image_pipeline
 )
 
 set_target_properties(ecto_image_pipeline_ectomodule PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY ${python_LIBRARY_OUTPUT_DIRECTORY}
                       OUTPUT_NAME base
                       PREFIX ""
 )
 
- 
-install(TARGETS ecto_image_pipeline_ectomodule
-        DESTINATION ${PYTHON_PACKAGES_PATH}/ecto_image_pipeline
-)
+install_ecto_module(ecto_image_pipeline)
 
 add_subdirectory(conversion)

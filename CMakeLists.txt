@@ -8,6 +8,9 @@ catkin_project(ecto_image_pipeline
                DEPENDS Boost Eigen OpenCV
 )
 
+find_package(ecto REQUIRED)
+set_ecto_install_package_name(ecto_image_pipeline)
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 find_package(Boost REQUIRED)
@@ -30,9 +33,8 @@ add_subdirectory(src)
 option(BUILD_ECTO_CELLS "Build ecto cells" ON)
 if(BUILD_ECTO_CELLS)
   find_package(ecto REQUIRED)
-  set(python_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PYTHON_PACKAGES_PATH}/ecto_image_pipeline)
 
-  add_subdirectory(python)
+  catkin_python_setup()
   add_subdirectory(cells)
 endif()
 
@@ -43,6 +45,3 @@ if(BUILD_TEST)
 endif()
 
 #catkin_sphinx(${CMAKE_CURRENT_SOURCE_DIR}/doc doc)
-
-
-catkin_add_env_hooks(10.image_pipeline SHELLS all)
