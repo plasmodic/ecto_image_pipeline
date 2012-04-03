@@ -8,6 +8,8 @@ catkin_project(ecto_image_pipeline
                DEPENDS Boost Eigen OpenCV
 )
 
+catkin_python_setup()
+
 find_package(ecto REQUIRED)
 set_ecto_install_package_name(ecto_image_pipeline)
 
@@ -34,7 +36,6 @@ option(BUILD_ECTO_CELLS "Build ecto cells" ON)
 if(BUILD_ECTO_CELLS)
   find_package(ecto REQUIRED)
 
-  catkin_python_setup()
   add_subdirectory(cells)
 endif()
 
