@@ -9,7 +9,7 @@ add_library(ecto_image_pipeline SHARED
 )
 
 target_link_libraries(ecto_image_pipeline
-                      ${OpenCV_LIBS}
+                      ${OpenCV_LIBRARIES}
 )
 
 #install the main shared lib

@@ -29,3 +29,4 @@ set_target_properties(ecto_image_pipeline_ectomodule PROPERTIES
 install_ecto_module(ecto_image_pipeline)
 
 add_subdirectory(conversion)
+add_subdirectory(g2o)
