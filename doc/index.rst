@@ -1,6 +1,6 @@
-image_pipeline
-==============
-Core C++ functionality for image_pipeline.
+ecto_image_pipeline
+===================
+Core C++ functionality for ecto_image_pipeline.
 
  * Camera Models
  * Calibration routines including writing and reading from disk
@@ -16,7 +16,7 @@ get it
 ^^^^^^
 ::
 
-  % git clone git://github.com/wg-perception/image_pipeline.git
+  % git clone git://github.com/wg-perception/ecto_image_pipeline.git
 
 requires
 ^^^^^^^^
@@ -31,7 +31,7 @@ build it
 ^^^^^^^^
 ::
 
-  % cd image_pipeline
+  % cd ecto_image_pipeline
   % mkdir build
   % cd build
   % cmake ..
@@ -41,13 +41,13 @@ test it
 ^^^^^^^
 ::
 
-  % cd image_pipeline/build
+  % cd ecto_image_pipeline/build
   % make
   % ctest -V
 
 use it
 ^^^^^^
-See samples/user_project for a project that uses image_pipeline
+See samples/user_project for a project that uses ecto_image_pipeline
 
 
 
@@ -55,4 +55,4 @@ Cells
 -----
 
 
-.. ectomodule:: image_pipeline
+.. ectomodule:: ecto_image_pipeline
