@@ -2,7 +2,7 @@
 Module defining several inputs for the object recognition pipeline
 """
 import ecto
-import ecto_ros.ecto_ros as ecto_ros
+import ecto_ros
 import ecto_ros.ecto_sensor_msgs as ecto_sensor_msgs
 from ecto_opencv.calib import DepthTo3d, DepthMask
 from ecto_image_pipeline.base import RescaledRegisteredDepth
