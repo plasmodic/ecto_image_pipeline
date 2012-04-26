@@ -3,6 +3,12 @@ if(NOT ecto_FOUND)
   return()
 endif()
 
+find_package(g2o QUIET)
+if(NOT g2o_FOUND)
+  return()
+endif()
+
+
 find_package(OpenCV REQUIRED)
 find_package(Eigen REQUIRED)
 find_package(ecto_image_pipeline REQUIRED)
@@ -13,7 +19,6 @@ ectomodule(ecto_image_pipeline_g2o
            SbaDisparity.cpp
 )
 
-find_package(g2o)
 include_directories(SYSTEM
                     /usr/include/suitesparse
                     ${g2o_INCLUDE_DIRS}
@@ -21,7 +26,7 @@ include_directories(SYSTEM
 link_ecto(ecto_image_pipeline_g2o
           cholmod
           ${ecto_image_pipeline_LIBRARIES}
-          ${g2o_LIBS}
+          ${g2o_LIBRARIES}
 )
 
 set_target_properties(ecto_image_pipeline_g2o_ectomodule PROPERTIES
