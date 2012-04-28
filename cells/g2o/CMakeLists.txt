@@ -5,7 +5,10 @@ endif()
 
 find_package(g2o QUIET)
 if(NOT g2o_FOUND)
-  return()
+  find_package(libg2o QUIET)
+  if(NOT libg2o_FOUND)
+    return()
+  endif()
 endif()
 
 
@@ -26,7 +29,7 @@ include_directories(SYSTEM
 link_ecto(ecto_image_pipeline_g2o
           cholmod
           ${ecto_image_pipeline_LIBRARIES}
-          ${g2o_LIBRARIES}
+          ${g2o_LIBS}
 )
 
 set_target_properties(ecto_image_pipeline_g2o_ectomodule PROPERTIES
