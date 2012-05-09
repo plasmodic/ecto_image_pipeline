@@ -2,6 +2,8 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/rgbd/rgbd.hpp>
+
 using ecto::tendrils;
 namespace image_pipeline
 {
@@ -33,16 +35,7 @@ namespace image_pipeline
       cv::Size dsize = depth_in->size(), isize = image_in->size();
       cv::Mat depth;
       cv::Mat valid_mask;
-      if (depth_in->type() == CV_16UC1)
-      {
-        depth_in->convertTo(depth, CV_32F, 1 / 1000.0); //convert to float so that we can work with NANs
-        valid_mask = *depth_in == 0;
-        depth.setTo(std::numeric_limits<float>::quiet_NaN(), valid_mask); //set all non valid points in the depth to NAN.
-      }
-      else
-      {
-        depth_in->convertTo(depth, CV_32F);
-      }
+      rescaleDepth(*depth_in, depth);
 
       if (dsize == isize)
       {

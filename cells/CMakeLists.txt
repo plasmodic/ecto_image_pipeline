@@ -1,7 +1,10 @@
-find_package(ecto)
+find_package(ecto QUIET)
 if(NOT ecto_FOUND)
   return()
 endif()
+
+find_package(ecto_opencv REQUIRED)
+include_directories(SYSTEM ${ecto_opencv_INCLUDE_DIRS})
 
 ectomodule(ecto_image_pipeline
    module.cpp
@@ -19,6 +22,7 @@ ectomodule(ecto_image_pipeline
 
 link_ecto(ecto_image_pipeline
           ecto_image_pipeline
+          ${ecto_opencv_LIBRARIES}
 )
 
 set_target_properties(ecto_image_pipeline_ectomodule PROPERTIES
