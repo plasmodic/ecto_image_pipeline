@@ -3,10 +3,10 @@
 namespace image_pipeline
 {
 
-  Pose::Pose(const std::string& frame_id, const Eigen::Affine3d transform)
-      :
-        frame_id(frame_id),
-        transform(transform)
+  Pose::Pose(const std::string& frame_id, const Eigen::Affine3d& transform)
+    :
+    frame_id(frame_id),
+    transform(transform)
   {
   }
   Pose::Pose(const std::string& frame_id, const Eigen::Matrix3d& R, const Eigen::Vector3d& T)

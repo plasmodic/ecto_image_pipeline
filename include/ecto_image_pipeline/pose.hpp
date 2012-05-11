@@ -20,7 +20,7 @@ namespace image_pipeline
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW // needed for 16B alignment
 
     explicit
-    Pose(const std::string& frame_id = "", const Eigen::Affine3d transform = Eigen::Affine3d::Identity());
+    Pose(const std::string& frame_id = "", const Eigen::Affine3d &transform = Eigen::Affine3d::Identity());
 
     explicit
     Pose(const std::string& frame_id, const Eigen::Matrix3d& R, const Eigen::Vector3d& T);
