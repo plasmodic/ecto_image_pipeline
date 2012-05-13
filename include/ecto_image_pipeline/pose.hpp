@@ -26,7 +26,7 @@ namespace image_pipeline
     Pose(const std::string& frame_id, const Eigen::Matrix3d& R, const Eigen::Vector3d& T);
 
     std::string frame_id;
-    Eigen::Affine3d transform;
+    Eigen::Transform<double, 3, Eigen::Affine, Eigen::DontAlign> transform;
 
     friend std::ostream&
     operator<<(std::ostream& out, const image_pipeline::Pose& p);
