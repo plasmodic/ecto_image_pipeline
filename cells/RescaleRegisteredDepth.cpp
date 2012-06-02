@@ -35,7 +35,7 @@ namespace image_pipeline
       cv::Size dsize = depth_in->size(), isize = image_in->size();
       cv::Mat depth;
       cv::Mat valid_mask;
-      rescaleDepth(*depth_in, depth);
+      rescaleDepth(*depth_in, CV_32F, depth);
 
       if (dsize == isize)
       {
