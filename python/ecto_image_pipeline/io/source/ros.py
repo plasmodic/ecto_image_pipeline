@@ -79,10 +79,11 @@ class OpenNISubscriber(BaseSource):
         #this is the private synchronization subscriber setup.
         #NOTE that these are all ROS remappable on the command line in typical ros fashion
         #TODO Should these just be simple names where remapping is expected?
-        subs = dict(image=ImageSub(topic_name='/camera/rgb/image_color', queue_size=0),
-                    depth=ImageSub(topic_name='/camera/depth/image', queue_size=0),
-                    depth_info=CameraInfoSub(topic_name='/camera/depth/camera_info', queue_size=0),
-                    image_info=CameraInfoSub(topic_name='/camera/rgb/camera_info', queue_size=0),
+        qsize = 1
+        subs = dict(image=ImageSub(topic_name='/camera/rgb/image_color', queue_size=qsize),
+                    depth=ImageSub(topic_name='/camera/depth/image', queue_size=qsize),
+                    depth_info=CameraInfoSub(topic_name='/camera/depth/camera_info', queue_size=qsize),
+                    image_info=CameraInfoSub(topic_name='/camera/rgb/camera_info', queue_size=qsize),
                  )
         #Creating this in declare io, so that i can declare the output with a concrete type.
         self._source = ecto_ros.Synchronizer('Synchronizator', subs=subs)
