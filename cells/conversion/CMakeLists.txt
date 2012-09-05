@@ -9,7 +9,8 @@ include_directories(SYSTEM
                     ${PCL_INCLUDE_DIRS}
 )
 
-ectomodule(ecto_image_pipeline_conversion
+ectomodule(ecto_image_pipeline_conversion DESTINATION ecto_image_pipeline
+                                          INSTALL
   module.cpp
   MatToPointCloud.cpp
   PointCloudToDepthMat.cpp
@@ -26,5 +27,3 @@ set_target_properties(ecto_image_pipeline_conversion_ectomodule PROPERTIES
                       OUTPUT_NAME conversion
                       PREFIX ""
 )
-
-install_ecto_module(ecto_image_pipeline_conversion)

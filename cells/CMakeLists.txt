@@ -6,7 +6,8 @@ endif()
 find_package(ecto_opencv REQUIRED)
 include_directories(SYSTEM ${ecto_opencv_INCLUDE_DIRS})
 
-ectomodule(ecto_image_pipeline
+ectomodule(ecto_image_pipeline DESTINATION ecto_image_pipeline
+                               INSTALL
    module.cpp
    StereoCalibration.cpp
    PinholeModelLoader.cpp
@@ -29,8 +30,6 @@ set_target_properties(ecto_image_pipeline_ectomodule PROPERTIES
                       OUTPUT_NAME base
                       PREFIX ""
 )
-
-install_ecto_module(ecto_image_pipeline)
 
 add_subdirectory(conversion)
 add_subdirectory(g2o)

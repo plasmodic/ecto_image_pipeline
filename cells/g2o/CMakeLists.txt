@@ -16,7 +16,8 @@ find_package(OpenCV REQUIRED)
 find_package(Eigen REQUIRED)
 find_package(ecto_image_pipeline REQUIRED)
 
-ectomodule(ecto_image_pipeline_g2o
+ectomodule(ecto_image_pipeline_g2o DESTINATION ecto_image_pipeline
+                                   INSTALL
            module.cpp
            Sba.cpp
            SbaDisparity.cpp
@@ -36,5 +37,3 @@ set_target_properties(ecto_image_pipeline_g2o_ectomodule PROPERTIES
                       OUTPUT_NAME g2o
                       PREFIX ""
 )
-
-install_ecto_module(ecto_image_pipeline_g2o)

@@ -11,7 +11,6 @@ catkin_project(ecto_image_pipeline
 catkin_python_setup()
 
 find_package(ecto REQUIRED)
-set_ecto_install_package_name(ecto_image_pipeline)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
