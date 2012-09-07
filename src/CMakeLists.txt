@@ -14,7 +14,14 @@ target_link_libraries(ecto_image_pipeline
 )
 
 #install the main shared lib
+if (ROS_GROOVY_FOUND)
+install(TARGETS ecto_image_pipeline
+        DESTINATION ${CATKIN_PROJECT_LIB_DESTINATION}
+        COMPONENT main
+)
+else()
 install(TARGETS ecto_image_pipeline
         DESTINATION lib
         COMPONENT main
 )
+endif()

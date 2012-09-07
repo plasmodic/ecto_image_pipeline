@@ -29,14 +29,8 @@ include_directories(SYSTEM
   ${Boost_INCLUDE_DIRS}
 )
 
+add_subdirectory(cells)
 add_subdirectory(src)
-
-option(BUILD_ECTO_CELLS "Build ecto cells" ON)
-if(BUILD_ECTO_CELLS)
-  find_package(ecto REQUIRED)
-
-  add_subdirectory(cells)
-endif()
 
 option(BUILD_TEST "Build tests" ON)
 if(BUILD_TEST)

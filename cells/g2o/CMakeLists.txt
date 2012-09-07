@@ -14,7 +14,6 @@ endif()
 
 find_package(OpenCV REQUIRED)
 find_package(Eigen REQUIRED)
-find_package(ecto_image_pipeline REQUIRED)
 
 ectomodule(ecto_image_pipeline_g2o DESTINATION ecto_image_pipeline
                                    INSTALL
@@ -29,7 +28,6 @@ include_directories(SYSTEM
 )
 link_ecto(ecto_image_pipeline_g2o
           cholmod
-          ${ecto_image_pipeline_LIBRARIES}
           ${g2o_LIBS}
 )
 
