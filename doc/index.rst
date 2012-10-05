@@ -1,3 +1,5 @@
+.. _ecto_image_pipeline:
+
 ecto_image_pipeline: Camera Models, Calibration, etc.
 =====================================================
 
