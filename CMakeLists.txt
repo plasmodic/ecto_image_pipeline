@@ -1,13 +1,20 @@
 cmake_minimum_required(VERSION 2.8)
 project(ecto_image_pipeline)
+
+find_package(Boost REQUIRED)
 find_package(catkin REQUIRED)
+find_package(Eigen REQUIRED)
+find_package(OpenCV REQUIRED)
+find_package(PCL REQUIRED)
 if (${catkin_VERSION} VERSION_GREATER "0.5.28")
-catkin_package(INCLUDE_DIRS include
+catkin_package(DEPENDS Boost Eigen OpenCV PCL
+               INCLUDE_DIRS include
                LIBRARIES ecto_image_pipeline
 )
 else()
 catkin_stack()
 catkin_project(ecto_image_pipeline
+               DEPENDS Boost Eigen OpenCV PCL
                INCLUDE_DIRS include
                LIBRARIES ecto_image_pipeline
 )
@@ -18,10 +25,6 @@ catkin_python_setup()
 find_package(ecto REQUIRED)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
-find_package(Boost REQUIRED)
-find_package(Eigen REQUIRED)
-find_package(OpenCV REQUIRED)
 
 include_directories(include)
 install(DIRECTORY ${ecto_image_pipeline_SOURCE_DIR}/include/

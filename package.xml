@@ -9,8 +9,8 @@
   <license>BSD</license>
   <copyright>Willow Garage</copyright>
 
-  <build_depend>catkin</build_depend>
   <build_depend>boost</build_depend>
+  <build_depend>catkin</build_depend>
   <build_depend>ecto</build_depend>
   <build_depend>ecto_opencv</build_depend>
   <build_depend>libg2o</build_depend>
@@ -20,6 +20,7 @@
   <run_depend>boost</run_depend>
   <run_depend>ecto</run_depend>
   <run_depend>ecto_opencv</run_depend>
+  <run_depend>eigen</run_depend>
   <run_depend>libg2o</run_depend>
   <run_depend>opencv2</run_depend>
   <run_depend>pcl</run_depend>
