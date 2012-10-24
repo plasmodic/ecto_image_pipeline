@@ -2,12 +2,12 @@ cmake_minimum_required(VERSION 2.8)
 project(ecto_image_pipeline)
 
 find_package(Boost REQUIRED)
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED opencv_candidate)
 find_package(Eigen REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(PCL REQUIRED)
 if (${catkin_VERSION} VERSION_GREATER "0.5.28")
-catkin_package(DEPENDS Boost Eigen OpenCV PCL
+catkin_package(DEPENDS Boost Eigen OpenCV opencv_candidate PCL
                INCLUDE_DIRS include
                LIBRARIES ecto_image_pipeline
 )

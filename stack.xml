@@ -14,6 +14,7 @@
   <build_depends>ecto</build_depends>
   <build_depends>ecto_opencv</build_depends>
   <build_depends>libg2o</build_depends>
+  <build_depends>opencv_candidate</build_depends>
   <build_depends>opencv2</build_depends>
   <build_depends>pcl</build_depends>
 
@@ -21,6 +22,7 @@
   <depends>ecto</depends>
   <depends>ecto_opencv</depends>
   <depends>libg2o</depends>
+  <depends>opencv_candidate</depends>
   <depends>opencv2</depends>
   <depends>pcl</depends>
 </stack>

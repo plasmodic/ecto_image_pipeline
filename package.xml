@@ -7,13 +7,13 @@
   <maintainer email="vrabaud@willowgarage.com">Vincent Rabaud</maintainer>
   <url>http://ecto.willowgarage.com</url>
   <license>BSD</license>
-  <copyright>Willow Garage</copyright>
 
   <build_depend>boost</build_depend>
   <build_depend>catkin</build_depend>
   <build_depend>ecto</build_depend>
   <build_depend>ecto_opencv</build_depend>
   <build_depend>libg2o</build_depend>
+  <build_depend>opencv_candidate</build_depend>
   <build_depend>opencv2</build_depend>
   <build_depend>pcl</build_depend>
 
@@ -22,6 +22,7 @@
   <run_depend>ecto_opencv</run_depend>
   <run_depend>eigen</run_depend>
   <run_depend>libg2o</run_depend>
+  <run_depend>opencv_candidate</run_depend>
   <run_depend>opencv2</run_depend>
   <run_depend>pcl</run_depend>
 </package>
