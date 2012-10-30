@@ -3,6 +3,8 @@ if(NOT ecto_FOUND)
   return()
 endif()
 
+return()
+
 find_package(g2o QUIET)
 if(NOT g2o_FOUND)
   find_package(libg2o QUIET)
@@ -10,7 +12,6 @@ if(NOT g2o_FOUND)
     return()
   endif()
 endif()
-
 
 find_package(OpenCV REQUIRED)
 find_package(Eigen REQUIRED)

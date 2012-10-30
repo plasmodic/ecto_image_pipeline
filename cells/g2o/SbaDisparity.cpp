@@ -41,14 +41,11 @@
 #include <Eigen/Geometry>
 
 #include "g2o/core/block_solver.h"
-#include "g2o/core/graph_optimizer_sparse.h"
+#include "g2o/core/sparse_optimizer.h"
 #include "g2o/core/solver.h"
-#include "g2o/core/structure_only_solver.h"
 #include "g2o/solvers/cholmod/linear_solver_cholmod.h"
 #include "g2o/solvers/dense/linear_solver_dense.h"
 #include "g2o/types/icp/types_icp.h"
-
-#include "g2o/sba.h"
 
 using ecto::tendrils;
 
