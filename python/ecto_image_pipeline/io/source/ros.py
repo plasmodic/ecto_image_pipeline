@@ -30,6 +30,10 @@ class BaseSource(ecto.BlackBox):
     CAMERA_TYPE = CameraType.RGBD
 
     def declare_params(self, p):
+        p.declare('rgb_image_topic','The ROS topic for the RGB image.','/camera/rgb/image_color')
+        p.declare('rgb_camera_info','The ROS topic for the RGB camera info.','/camera/rgb/camera_info')
+        p.declare('depth_image_topic','The ROS topic for the depth image.','/camera/depth_registered/image')
+        p.declare('depth_camera_info','The ROS topic for the depth camera info.','/camera/depth_registered/camera_info')
         pass
 
     def declare_io(self, _p, _i, o):
@@ -80,10 +84,10 @@ class OpenNISubscriber(BaseSource):
         #NOTE that these are all ROS remappable on the command line in typical ros fashion
         #TODO Should these just be simple names where remapping is expected?
         qsize = 1
-        subs = dict(image=ImageSub(topic_name='/camera/rgb/image_color', queue_size=qsize),
-                    depth=ImageSub(topic_name='/camera/depth_registered/image', queue_size=qsize),
-                    depth_info=CameraInfoSub(topic_name='/camera/depth_registered/camera_info', queue_size=qsize),
-                    image_info=CameraInfoSub(topic_name='/camera/rgb/camera_info', queue_size=qsize),
+        subs = dict(image=ImageSub(topic_name=p.rgb_image_topic, queue_size=qsize),
+                    image_info=CameraInfoSub(topic_name=p.rgb_camera_info, queue_size=qsize),
+                    depth=ImageSub(topic_name=p.depth_image_topic, queue_size=qsize),
+                    depth_info=CameraInfoSub(topic_name=p.depth_camera_info, queue_size=qsize)
                  )
         #Creating this in declare io, so that i can declare the output with a concrete type.
         self._source = ecto_ros.Synchronizer('Synchronizator', subs=subs)
@@ -108,10 +112,10 @@ class BagReader(BaseSource):
         #this is the private synchronization subscriber setup.
         #NOTE that these are all ROS remappable on the command line in typical ros fashion
         #TODO Should these just be simple names where remapping is expected?
-        baggers = dict(image=ImageBagger(topic_name='/camera/rgb/image_color'),
-                       depth=ImageBagger(topic_name='/camera/depth/image'),
-                       image_info=CameraInfoBagger(topic_name='/camera/rgb/camera_info'),
-                       depth_info=CameraInfoBagger(topic_name='/camera/depth/camera_info'),
+        baggers = dict(image=ImageBagger(topic_name=p.rgb_image_topic),
+                       depth=ImageBagger(topic_name=p.depth_image_topic),
+                       image_info=CameraInfoBagger(topic_name=p.rgb_camera_info),
+                       depth_info=CameraInfoBagger(topic_name=p.depth_camera_info),
                        )
         #Creating this in declare io, so that i can declare the output with a concrete type.
         self._source = ecto_ros.BagReader('Bag Reader', bag=p.bag, baggers=baggers)
