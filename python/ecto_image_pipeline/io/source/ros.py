@@ -7,6 +7,7 @@ import ecto_ros.ecto_sensor_msgs as ecto_sensor_msgs
 from ecto_opencv.calib import DepthTo3d, DepthMask
 from ecto_image_pipeline.base import RescaledRegisteredDepth
 from ecto_image_pipeline.io.source import CameraType
+from ecto_image_pipeline.conversion import MatToPointCloudXYZOrganized
 
 ImageSub = ecto_sensor_msgs.Subscriber_Image
 CameraInfoSub = ecto_sensor_msgs.Subscriber_CameraInfo
@@ -25,6 +26,7 @@ class BaseSource(ecto.BlackBox):
     _depth_map = RescaledRegisteredDepth
     _depth_mask = DepthMask
     _points3d = DepthTo3d
+    _cloud = MatToPointCloudXYZOrganized
     _source = None #this should be allocated in by implementers
 
     CAMERA_TYPE = CameraType.RGBD
@@ -41,6 +43,7 @@ class BaseSource(ecto.BlackBox):
         o.forward('depth', cell_name='_depth_map', cell_key='depth', doc='The depth map from a OpenNI device. This is a CV_32FC1, with values in meters.')
         o.forward('K', cell_name='_camera_info', cell_key='K', doc='The camera intrinsics matrix.')
         o.forward('points3d', cell_name='_points3d')
+        o.forward('point_cloud', cell_name='_cloud', cell_key='point_cloud')
         o.forward('mask', cell_name='_depth_mask')
 
     def configure(self, p, _i, _o):
@@ -70,7 +73,9 @@ class BaseSource(ecto.BlackBox):
         graph += [
                   self._depth_map['depth'] >> self._points3d['depth'],
                   self._camera_info['K'] >> self._points3d['K'],
-                  self._depth_map['depth'] >> self._depth_mask['depth']
+                  self._depth_map['depth'] >> self._depth_mask['depth'],
+                  #self._rgb_image['image'] >> self._cloud['image'],
+                  self._points3d['points3d'] >> self._cloud['points']
                  ]
 
         return graph

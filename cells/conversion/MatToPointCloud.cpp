@@ -144,6 +144,33 @@ namespace image_pipeline
       ecto::spore<CloudOutT> cloud_out;
 
     };
+    struct MatToPointCloudXYZRGBOrganized
+        {
+          // Get the original keypoints and point cloud
+          typedef pcl::PointXYZRGB PointType;
+          typedef pcl::PointCloud<PointType> CloudType;
+          typedef CloudType::ConstPtr CloudOutT;
+
+
+          static void
+          declare_io(const tendrils& params, tendrils& inputs, tendrils& outputs)
+          {
+            inputs.declare(&MatToPointCloudXYZRGBOrganized::points3d, "points", "The width by height by 3 channels (x, y and z)").required(true);
+            inputs.declare(&MatToPointCloudXYZRGBOrganized::image, "image", "The rgb image.").required(true);
+            outputs.declare(&MatToPointCloudXYZRGBOrganized::cloud_out, "point_cloud", "The XYZRGB organized point cloud");
+          }
+
+          int
+          process(const tendrils& inputs, const tendrils& outputs)
+          {
+            CloudType::Ptr point_cloud(new CloudType);
+            cvToCloudRGBOrganized(*points3d, *point_cloud, *image, (*points3d).cols, (*points3d).rows);
+            *cloud_out = point_cloud;
+            return ecto::OK;
+          }
+          ecto::spore<cv::Mat> points3d, image;
+          ecto::spore<CloudOutT> cloud_out;
+        };
   }
 }
 
@@ -153,3 +180,5 @@ ECTO_CELL(conversion, image_pipeline::conversion::MatToPointCloudXYZOrganized, "
           "Given a cv::Mat, convert it to an organized pcl::PointCloud<pcl::PointXYZ>.");
 ECTO_CELL(conversion, image_pipeline::conversion::MatToPointCloudXYZRGB, "MatToPointCloudXYZRGB",
           "Given a cv::Mat, convert it to pcl::PointCloud<pcl::PointXYZRGB>.");
+ECTO_CELL(conversion, image_pipeline::conversion::MatToPointCloudXYZRGBOrganized, "MatToPointCloudXYZRGBOrganized",
+          "Given a cv::Mat, convert it to an organized pcl::PointCloud<pcl::PointXYZRGB>.");

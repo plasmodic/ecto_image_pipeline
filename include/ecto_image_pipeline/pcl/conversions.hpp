@@ -94,6 +94,33 @@ namespace image_pipeline
     }
   }
 
+  template<typename PointT>
+  inline void
+  cvToCloudRGBOrganized(const cv::Mat_<cv::Point3f>& points3d, pcl::PointCloud<PointT>& cloud, const cv::Mat& rgb, size_t width, size_t height,
+                     const cv::Mat& mask = cv::Mat())
+  {
+    cloud.points.resize(width * height);
+    cloud.width = width;
+    cloud.height = height;
+
+    for (size_t v = 0; v < height; ++v)
+    {
+      const float * begin = reinterpret_cast<const float*>(points3d.ptr(v));
+      const cv::Vec3b * begin_rgb = rgb.ptr<cv::Vec3b>(v);
+      for (size_t u = 0; u < width; ++u)
+      {
+        PointT& p = cloud(u, v);
+        p.x = *(begin++);
+        p.y = *(begin++);
+        p.z = *(begin++);
+        // bgr layout
+        p.r = begin_rgb[u][2];
+        p.g = begin_rgb[u][1];
+        p.b = begin_rgb[u][0];
+      }
+    }
+  }
+
       /**
        * p = R*x + T
        * if inverse:
