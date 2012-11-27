@@ -7,7 +7,8 @@ find_package(Eigen REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(PCL REQUIRED)
 if (${catkin_VERSION} VERSION_GREATER "0.5.28")
-catkin_package(DEPENDS Boost Eigen OpenCV opencv_candidate PCL
+catkin_package(CATKIN_DEPENDS opencv_candidate
+               DEPENDS Boost Eigen OpenCV PCL
                INCLUDE_DIRS include
                LIBRARIES ecto_image_pipeline
 )
@@ -27,14 +28,20 @@ find_package(ecto REQUIRED)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 include_directories(include)
+if (ROS_FUERTE_FOUND)
 install(DIRECTORY ${ecto_image_pipeline_SOURCE_DIR}/include/
         DESTINATION include
         COMPONENT main
 )
+else()
+install(DIRECTORY ${ecto_image_pipeline_SOURCE_DIR}/include/ecto_image_pipeline/
+        DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+        COMPONENT main
+)
+endif()
 
-include_directories(SYSTEM
-  ${Eigen_INCLUDE_DIRS}
-  ${Boost_INCLUDE_DIRS}
+include_directories(SYSTEM ${Eigen_INCLUDE_DIRS}
+                           ${Boost_INCLUDE_DIRS}
 )
 
 add_subdirectory(cells)
