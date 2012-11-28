@@ -4,7 +4,7 @@ Module defining several inputs for the object recognition pipeline
 import ecto
 import ecto_ros
 import ecto_ros.ecto_sensor_msgs as ecto_sensor_msgs
-from ecto_opencv.calib import DepthTo3d, DepthMask
+from ecto_opencv.calib import DepthTo3d, DepthMask, CropBox
 from ecto_image_pipeline.base import RescaledRegisteredDepth
 from ecto_image_pipeline.io.source import CameraType
 from ecto_image_pipeline.conversion import MatToPointCloudXYZOrganized
@@ -24,7 +24,8 @@ class BaseSource(ecto.BlackBox):
     _rgb_image = ecto_ros.Image2Mat
     _depth_converter = ecto_ros.Image2Mat
     _depth_map = RescaledRegisteredDepth
-    _depth_mask = DepthMask
+    #_depth_mask = DepthMask
+    _crop_box = CropBox
     _points3d = DepthTo3d
     _cloud = MatToPointCloudXYZOrganized
     _source = None #this should be allocated in by implementers
@@ -36,15 +37,16 @@ class BaseSource(ecto.BlackBox):
         p.declare('rgb_camera_info','The ROS topic for the RGB camera info.','/camera/rgb/camera_info')
         p.declare('depth_image_topic','The ROS topic for the depth image.','/camera/depth_registered/image')
         p.declare('depth_camera_info','The ROS topic for the depth camera info.','/camera/depth_registered/camera_info')
+        p.forward_all('_crop_box')
         pass
 
     def declare_io(self, _p, _i, o):
-        o.forward('image', cell_name='_rgb_image', cell_key='image', doc='The RGB image from a OpenNI device.')
-        o.forward('depth', cell_name='_depth_map', cell_key='depth', doc='The depth map from a OpenNI device. This is a CV_32FC1, with values in meters.')
+        o.forward('image', cell_name='_crop_box', cell_key='rgb', doc='The RGB image from a OpenNI device.')
+        o.forward('depth', cell_name='_crop_box', cell_key='depth', doc='The depth map from a OpenNI device. This is a CV_32FC1, with values in meters.')
         o.forward('K', cell_name='_camera_info', cell_key='K', doc='The camera intrinsics matrix.')
-        o.forward('points3d', cell_name='_points3d')
+        o.forward('points3d', cell_name='_crop_box')
         o.forward('point_cloud', cell_name='_cloud', cell_key='point_cloud')
-        o.forward('mask', cell_name='_depth_mask')
+        o.forward('mask', cell_name='_crop_box')
 
     def configure(self, p, _i, _o):
         #ROS message converters
@@ -55,7 +57,8 @@ class BaseSource(ecto.BlackBox):
         #these transform the depth into something usable
         self._depth_map = BaseSource._depth_map()
         self._points3d = BaseSource._points3d()
-        self._depth_mask = BaseSource._depth_mask()
+        #self._depth_mask = BaseSource._depth_mask()
+        self._crop_box = BaseSource._crop_box()
 
     def connections(self):
         #ros message converers
@@ -73,9 +76,12 @@ class BaseSource(ecto.BlackBox):
         graph += [
                   self._depth_map['depth'] >> self._points3d['depth'],
                   self._camera_info['K'] >> self._points3d['K'],
-                  self._depth_map['depth'] >> self._depth_mask['depth'],
+                  #self._depth_map['depth'] >> self._depth_mask['depth'],
                   #self._rgb_image['image'] >> self._cloud['image'],
-                  self._points3d['points3d'] >> self._cloud['points']
+                  self._points3d['points3d'] >> self._crop_box['points3d'],
+                  self._rgb_image['image'] >> self._crop_box['rgb'],
+                  self._depth_map['depth'] >> self._crop_box['depth'],
+                  self._crop_box['points3d'] >> self._cloud['points']                  
                  ]
 
         return graph
