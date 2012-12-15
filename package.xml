@@ -9,7 +9,6 @@
   <license>BSD</license>
 
   <build_depend>boost</build_depend>
-  <build_depend>catkin</build_depend>
   <build_depend>ecto</build_depend>
   <build_depend>ecto_opencv</build_depend>
   <build_depend>libg2o</build_depend>
@@ -25,4 +24,6 @@
   <run_depend>opencv_candidate</run_depend>
   <run_depend>opencv2</run_depend>
   <run_depend>pcl</run_depend>
+
+  <buildtool_depend>catkin</buildtool_depend>
 </package>
