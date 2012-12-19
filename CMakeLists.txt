@@ -27,7 +27,7 @@ find_package(ecto REQUIRED)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-include_directories(include)
+include_directories(include ${catkin_INCLUDE_DIRS})
 if (ROS_FUERTE_FOUND)
 install(DIRECTORY ${ecto_image_pipeline_SOURCE_DIR}/include/
         DESTINATION include

@@ -1,13 +1,5 @@
-find_package(ecto QUIET)
-if(NOT ecto_FOUND)
-  return()
-endif()
-
-find_package(ecto_opencv REQUIRED)
-include_directories(SYSTEM ${ecto_opencv_INCLUDE_DIRS})
-
-ectomodule(ecto_image_pipeline DESTINATION ecto_image_pipeline
-                               INSTALL
+ectomodule(base DESTINATION ecto_image_pipeline
+                INSTALL
    module.cpp
    StereoCalibration.cpp
    PinholeModelLoader.cpp
@@ -21,14 +13,8 @@ ectomodule(ecto_image_pipeline DESTINATION ecto_image_pipeline
    CameraFromOpenNI.cpp
 )
 
-link_ecto(ecto_image_pipeline
-          ecto_image_pipeline
-          ${ecto_opencv_LIBRARIES}
-)
-
-set_target_properties(ecto_image_pipeline_ectomodule PROPERTIES
-                      OUTPUT_NAME base
-                      PREFIX ""
+link_ecto(base ecto_image_pipeline
+               ${catkin_LIBRARIES}
 )
 
 add_subdirectory(conversion)
