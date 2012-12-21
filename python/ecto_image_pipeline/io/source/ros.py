@@ -59,6 +59,7 @@ class BaseSource(ecto.BlackBox):
         self._points3d = BaseSource._points3d()
         #self._depth_mask = BaseSource._depth_mask()
         self._crop_box = BaseSource._crop_box()
+        self._cloud = BaseSource._cloud()
 
     def connections(self):
         #ros message converers
