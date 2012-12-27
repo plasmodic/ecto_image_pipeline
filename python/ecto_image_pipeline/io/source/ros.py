@@ -4,68 +4,69 @@ Module defining several inputs for the object recognition pipeline
 import ecto
 import ecto_ros
 import ecto_ros.ecto_sensor_msgs as ecto_sensor_msgs
-from ecto_opencv.calib import DepthTo3d, DepthMask, CropBox
+from ecto_opencv.calib import DepthTo3d, CropBox
 from ecto_image_pipeline.base import RescaledRegisteredDepth
 from ecto_image_pipeline.io.source import CameraType
 from ecto_image_pipeline.conversion import MatToPointCloudXYZOrganized
+from ecto import BlackBoxCellInfo as CellInfo, BlackBoxForward as Forward
 
 ImageSub = ecto_sensor_msgs.Subscriber_Image
 CameraInfoSub = ecto_sensor_msgs.Subscriber_CameraInfo
 ImageBagger = ecto_sensor_msgs.Bagger_Image
 CameraInfoBagger = ecto_sensor_msgs.Bagger_CameraInfo
 
-
 ########################################################################################################################
 
 class BaseSource(ecto.BlackBox):
-    """A source that uses ROS to produce image, depth, and camera info.
     """
-    _camera_info = ecto_ros.CameraInfo2Cv
-    _rgb_image = ecto_ros.Image2Mat
-    _depth_converter = ecto_ros.Image2Mat
-    _depth_map = RescaledRegisteredDepth
+    A source that uses ROS to produce image, depth, and camera info.
+    The implementer needs to declare the "source" cell in declare_cells
+    """
     #_depth_mask = DepthMask
-    _crop_box = CropBox
-    _points3d = DepthTo3d
-    _cloud = MatToPointCloudXYZOrganized
-    _source = None #this should be allocated in by implementers
 
     CAMERA_TYPE = CameraType.RGBD
 
-    def declare_params(self, p):
+    @staticmethod
+    def declare_cells(_p):
+        return {'camera_info': CellInfo(ecto_ros.CameraInfo2Cv),
+                'cloud': CellInfo(MatToPointCloudXYZOrganized),
+                'crop_box': CellInfo(CropBox)}
+
+    @staticmethod
+    def declare_direct_params(p):
         p.declare('rgb_image_topic','The ROS topic for the RGB image.','/camera/rgb/image_color')
         p.declare('rgb_camera_info','The ROS topic for the RGB camera info.','/camera/rgb/camera_info')
         p.declare('depth_image_topic','The ROS topic for the depth image.','/camera/depth_registered/image')
         p.declare('depth_camera_info','The ROS topic for the depth camera info.','/camera/depth_registered/camera_info')
-        p.forward_all('_crop_box')
-        pass
 
-    def declare_io(self, _p, _i, o):
-        o.forward('image', cell_name='_crop_box', cell_key='rgb', doc='The RGB image from a OpenNI device.')
-        o.forward('depth', cell_name='_crop_box', cell_key='depth', doc='The depth map from a OpenNI device. This is a CV_32FC1, with values in meters.')
-        o.forward('K', cell_name='_camera_info', cell_key='K', doc='The camera intrinsics matrix.')
-        o.forward('points3d', cell_name='_crop_box')
-        o.forward('point_cloud', cell_name='_cloud', cell_key='point_cloud')
-        o.forward('mask', cell_name='_crop_box')
+    @staticmethod
+    def declare_forwards(_p):
+        p = {'crop_box': 'all'}
+        i = {}
+        o = {'camera_info': [Forward('K', new_doc='The camera intrinsics matrix.')],
+             'cloud': [Forward('point_cloud')],
+             'crop_box': [Forward('rgb', 'image', 'The RGB image from a OpenNI device.'),
+                          Forward('depth', new_doc='The depth map from a OpenNI device. This is a CV_32FC1, with values in meters.'),
+                          Forward('points3d'), Forward('mask')]
+            }
 
-    def configure(self, p, _i, _o):
+        return (p,i,o)
+
+    def configure(self, _p, _i, _o):
         #ROS message converters
-        self._depth_converter = BaseSource._depth_converter()
-        self._camera_info = BaseSource._camera_info()
-        self._rgb_image = BaseSource._rgb_image(swap_rgb=True)
+        self._depth_converter = ecto_ros.Image2Mat()
+        self._rgb_image = ecto_ros.Image2Mat(swap_rgb=True)
 
         #these transform the depth into something usable
-        self._depth_map = BaseSource._depth_map()
-        self._points3d = BaseSource._points3d()
+        self._depth_map = RescaledRegisteredDepth()
+        self._points3d = DepthTo3d()
         #self._depth_mask = BaseSource._depth_mask()
-        self._crop_box = BaseSource._crop_box()
-        self._cloud = BaseSource._cloud()
 
-    def connections(self):
+    def connections(self, p):
         #ros message converers
-        graph = [self._source["image"] >> self._rgb_image["image"],
-                  self._source["depth"] >> self._depth_converter["image"],
-                  self._source["image_info"] >> self._camera_info['camera_info']
+        graph = [self.source["image"] >> self._rgb_image["image"],
+                  self.source["depth"] >> self._depth_converter["image"],
+                  self.source["image_info"] >> self.camera_info['camera_info']
                   ]
 
         #rescaling ...
@@ -76,13 +77,13 @@ class BaseSource(ecto.BlackBox):
         #depth ~> 3d calculations
         graph += [
                   self._depth_map['depth'] >> self._points3d['depth'],
-                  self._camera_info['K'] >> self._points3d['K'],
+                  self.camera_info['K'] >> self._points3d['K'],
                   #self._depth_map['depth'] >> self._depth_mask['depth'],
                   #self._rgb_image['image'] >> self._cloud['image'],
-                  self._points3d['points3d'] >> self._crop_box['points3d'],
-                  self._rgb_image['image'] >> self._crop_box['rgb'],
-                  self._depth_map['depth'] >> self._crop_box['depth'],
-                  self._crop_box['points3d'] >> self._cloud['points']                  
+                  self._points3d['points3d'] >> self.crop_box['points3d'],
+                  self._rgb_image['image'] >> self.crop_box['rgb'],
+                  self._depth_map['depth'] >> self.crop_box['depth'],
+                  self.crop_box['points3d'] >> self.cloud['points']                  
                  ]
 
         return graph
@@ -90,8 +91,8 @@ class BaseSource(ecto.BlackBox):
 class OpenNISubscriber(BaseSource):
     """Subscribes to an openni device through ROS.
     """
-    def declare_io(self, p, i, o):
-        BaseSource.declare_io(self, p, i, o)
+    @staticmethod
+    def declare_cells(p):
         #this is the private synchronization subscriber setup.
         #NOTE that these are all ROS remappable on the command line in typical ros fashion
         #TODO Should these just be simple names where remapping is expected?
@@ -101,26 +102,30 @@ class OpenNISubscriber(BaseSource):
                     depth=ImageSub(topic_name=p.depth_image_topic, queue_size=qsize),
                     depth_info=CameraInfoSub(topic_name=p.depth_camera_info, queue_size=qsize)
                  )
-        #Creating this in declare io, so that i can declare the output with a concrete type.
-        self._source = ecto_ros.Synchronizer('Synchronizator', subs=subs)
+        cells = BaseSource.declare_cells(p)
+        cells['source'] = ecto_ros.Synchronizer('Synchronizator', subs=subs)
+
+        return cells
+
+    @staticmethod
+    def declare_forwards(p_in):
+        (p,i,o) = BaseSource.declare_forwards(p_in)
+
         #notice that this is not a forward declare
         #its a declaration with the name, and a pointer to a tendril.
-        o.declare('image_message', self._source.outputs.at('image'))
-        o.declare('depth_message', self._source.outputs.at('depth'))
-        o.declare('image_info_message', self._source.outputs.at('image_info'))
-        o.declare('depth_info_message', self._source.outputs.at('depth_info'))
+        o['source'] = o.get('source',[]) + [Forward('image', 'image_message'),
+                      Forward('depth', 'depth_message'), Forward('image_info', 'image_info_message'),
+                      Forward('depth_info', 'depth_info_message')]
+
+        return (p,i,o)
 
 ########################################################################################################################
 
 class BagReader(BaseSource):
     """Subscribes to an openni device through ROS.
     """
-    def declare_params(self, p):
-        BaseSource.declare_params(self, p)
-        p.declare('bag', "The bag file name.", "data.bag")
-
-    def declare_io(self, p, i, o):
-        BaseSource.declare_io(self, p, i, o)
+    @staticmethod
+    def declare_cells(p):
         #this is the private synchronization subscriber setup.
         #NOTE that these are all ROS remappable on the command line in typical ros fashion
         #TODO Should these just be simple names where remapping is expected?
@@ -129,11 +134,22 @@ class BagReader(BaseSource):
                        image_info=CameraInfoBagger(topic_name=p.rgb_camera_info),
                        depth_info=CameraInfoBagger(topic_name=p.depth_camera_info),
                        )
-        #Creating this in declare io, so that i can declare the output with a concrete type.
-        self._source = ecto_ros.BagReader('Bag Reader', bag=p.bag, baggers=baggers)
-        #notice that this is not a forward declare
-        #its a declaration with the name, and a pointer to a tendril.
-        o.declare('image_message', self._source.outputs.at('image'))
-        o.declare('depth_message', self._source.outputs.at('depth'))
-        o.declare('image_info_message', self._source.outputs.at('image_info'))
-        o.declare('depth_info_message', self._source.outputs.at('depth_info'))
+
+        cells = BaseSource.declare_cells(p)
+        cells['source'] = ecto_ros.BagReader('Bag Reader', bag=p.bag, baggers=baggers)
+
+        return cells
+
+    @staticmethod
+    def declare_direct_params(p):
+        BaseSource.declare_direct_params(p)
+        p.declare('bag', "The bag file name.", "data.bag")
+
+    @staticmethod
+    def declare_forwards(p_in):
+        p, i, o = BaseSource.declare_forwards(p_in)
+
+        o['source'] = [Forward('image', 'image_message'), Forward('depth', 'depth_message'),
+                       Forward('image_info', 'image_info_message'), Forward('depth_info', 'depth_info_message')]
+
+        return (p,i,o)
