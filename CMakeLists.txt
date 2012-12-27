@@ -15,10 +15,13 @@ catkin_package(CATKIN_DEPENDS opencv_candidate
 else()
 catkin_stack()
 catkin_project(ecto_image_pipeline
-               DEPENDS Boost Eigen OpenCV PCL
+               DEPENDS Boost Eigen OpenCV opencv_candidate PCL
                INCLUDE_DIRS include
                LIBRARIES ecto_image_pipeline
 )
+find_package(opencv_candidate)
+list(APPEND catkin_INCLUDE_DIRS ${opencv_candidate_INCLUDE_DIRS})
+list(APPEND catkin_LIBRARIES ${opencv_candidate_LIBRARIES})
 endif()
 
 catkin_python_setup()
