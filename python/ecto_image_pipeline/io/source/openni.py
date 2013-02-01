@@ -30,6 +30,7 @@ class OpenNISource(ecto.BlackBox):
     def connections(self, _p):
         keys = ('depth', 'image', 'focal_length_image', 'focal_length_depth', 'baseline')
         #camera model
-        graph = [ self.source[keys] >> self.converter[keys] ]
+        graph = [ self.source[keys] >> self.converter[keys],
+                  self.source['depth'] >> self.depth_mask['depth'] ]
 
         return graph
