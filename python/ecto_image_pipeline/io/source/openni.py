@@ -31,7 +31,7 @@ class OpenNISource(BlackBox):
     def declare_cells(cls, p):
         cells = {'source': BlackBoxCellInfo(OpenNICapture)}
         if 'mask_depth' in p['outputs_list']:
-            cells['depth_mask'] = BlackBoxCellInfo(DepthMask),
+            cells['depth_mask'] = BlackBoxCellInfo(DepthMask)
         if 'camera' in p['outputs_list']:
             cells['converter'] = BlackBoxCellInfo(CameraFromOpenNI)
         if 'points3d' in p['outputs_list']:
@@ -47,7 +47,7 @@ class OpenNISource(BlackBox):
     def declare_forwards(cls, p):
         cell_names = cls.declare_cells(p).keys()
 
-        p = {'source': 'all'}
+        p = {'source': [BlackBoxForward('image_fps', 'fps'), BlackBoxForward('image_mode','res')]}
         o = {'source': [BlackBoxForward('image', '', 'The RGB image from a OpenNI device.'),
                         BlackBoxForward('depth', 'depth', 'The The 16bit depth image.'),
                         BlackBoxForward('K', '', 'The camera intrinsics matrix.')]}

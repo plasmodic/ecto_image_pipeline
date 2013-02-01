@@ -55,6 +55,7 @@ def create_source(package_name, source_type, outputs_list=['K', 'image', 'depth'
                 K: the calibration matrix
                 image: the RGB image as a cv::Mat
                 depth: the depth image as a cv::Mat (int16, uint16 or float)
+                mask_depth: a mask of where the depth can be valid (useful for Kinect)
                 points3d: a cv:Mat of CV_32FC3 representing the 3d  points
     """
     import sys
@@ -68,15 +69,17 @@ def create_source(package_name, source_type, outputs_list=['K', 'image', 'depth'
     for val in ['fps', 'res']:
         if val in kwargs:
             if val == 'fps':
-                val_new = source_cls.fps_translator(kwargs[val])
+                val_new = source_cls.fps_translate(kwargs[val])
             elif val == 'res':
-                val_new = source_cls.res_translator(kwargs[val])
-            if not val_new:
+                val_new = source_cls.res_translate(kwargs[val])
+            if val_new:
+                kwargs[val] = val_new
+            else:
                 kwargs.pop(val)
 
     if outputs_list:
         # check the outputs
-        allowed_outputs = set(['K', 'image', 'depth', 'points3d'])
+        allowed_outputs = set(['K', 'image', 'depth', 'mask_depth', 'points3d'])
         remain = set(outputs_list).difference(allowed_outputs)
         if remain:
             raise RuntimeError('Outputs are not part of the supported ones: %s' % str(remain))
@@ -97,9 +100,9 @@ def add_camera_group(parser, group_name='camera'):
     :param group_name: the name of the camera group
     """
     group = parser.add_argument_group(group_name)
-    group.add_argument('--fps', metavar='FPS', dest='fps', type=fps_converter,
+    group.add_argument('--fps', metavar='FPS', dest='fps',
                        default='30', help='The temporal resolution of the captured data')
-    group.add_argument('--res', metavar='RES', dest='res', type=res_converter,
+    group.add_argument('--res', metavar='RES', dest='res',
                        default='vga', choices=['vga','sxga'], help='The image resolution of the captured data.')
 
 ######################################################################################################
