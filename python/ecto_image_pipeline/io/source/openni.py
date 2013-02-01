@@ -1,36 +1,77 @@
-import ecto
-from ecto import BlackBoxCellInfo, BlackBoxForward
-from ecto_opencv.calib import DepthMask
-from ecto_openni import OpenNICapture
-from ecto_image_pipeline.base import CameraFromOpenNI
-from ecto_image_pipeline.io.source import CameraType
+"""
+Module defining a source for an OpenNI device
+"""
 
-class OpenNISource(ecto.BlackBox):
+from ecto import BlackBox, BlackBoxCellInfo, BlackBoxForward
+from ecto_image_pipeline.base import CameraFromOpenNI
+from .camera_base import CameraType
+from ecto_opencv.calib import DepthMask, DepthTo3d
+from ecto_openni import OpenNICapture, SXGA_RES, VGA_RES, FPS_15, FPS_30
+
+class OpenNISource(BlackBox):
     """
     """
     CAMERA_TYPE = CameraType.RGBD
 
-    @classmethod
-    def declare_cells(cls, _p):
-        return {'source': BlackBoxCellInfo(OpenNICapture),
-                'depth_mask': BlackBoxCellInfo(DepthMask),
-                'converter': BlackBoxCellInfo(CameraFromOpenNI)}
+    @staticmethod
+    def fps_translate(fps):
+        fps_choices = {'15': FPS_15, '30': FPS_30}
+        if fps not in fps_choices:
+            raise RuntimeError('fps not amongst the possible ones: %s' % str(fps_choices.keys()))
+        return fps_choices[fps]
+
+    @staticmethod
+    def res_translate(res):
+        res_choices = {'vga': VGA_RES, 'sxga': SXGA_RES}
+        if res not in res_choices:
+            raise RuntimeError('res not amongst the possible ones: %s' % str(res_choices.keys()))
+        return res_choices[res]
 
     @classmethod
-    def declare_forwards(cls, _p):
+    def declare_cells(cls, p):
+        cells = {'source': BlackBoxCellInfo(OpenNICapture)}
+        if 'mask_depth' in p['outputs_list']:
+            cells['depth_mask'] = BlackBoxCellInfo(DepthMask),
+        if 'camera' in p['outputs_list']:
+            cells['converter'] = BlackBoxCellInfo(CameraFromOpenNI)
+        if 'points3d' in p['outputs_list']:
+            cells['depth_to_3d'] = BlackBoxCellInfo(DepthTo3d)
+
+        return cells
+
+    @staticmethod
+    def declare_direct_params(p):
+        p.declare('outputs_list', 'A list of outputs to support', ['K', 'image', 'depth'])
+
+    @classmethod
+    def declare_forwards(cls, p):
+        cell_names = cls.declare_cells(p).keys()
+
         p = {'source': 'all'}
         o = {'source': [BlackBoxForward('image', '', 'The RGB image from a OpenNI device.'),
-                                BlackBoxForward('depth', 'depth', 'The The 16bit depth image.'),
-                                BlackBoxForward('depth', 'depth_raw', 'The The 16bit depth image.'),
-                                BlackBoxForward('K', '', 'The camera intrinsics matrix.')],
-                     'depth_mask': [BlackBoxForward('mask', 'mask_depth', '')],
-                     'converter': [BlackBoxForward('camera', '', '')]}
-        return (p,{},o)
+                        BlackBoxForward('depth', 'depth', 'The The 16bit depth image.'),
+                        BlackBoxForward('K', '', 'The camera intrinsics matrix.')]}
+        if 'depth_mask' in cell_names:
+            o['depth_mask'] = [BlackBoxForward('mask', 'mask_depth')]
+        if 'converter' in cell_names:
+            o['converter'] = [BlackBoxForward('camera')]
+        if 'depth_to_3d' in cell_names:
+            o['depth_to_3d'] = [BlackBoxForward('points3d')]
 
-    def connections(self, _p):
+        return (p, {}, o)
+
+    def connections(self, p):
+        cell_names = self.declare_cells(p).keys()
+
         keys = ('depth', 'image', 'focal_length_image', 'focal_length_depth', 'baseline')
-        #camera model
-        graph = [ self.source[keys] >> self.converter[keys],
-                  self.source['depth'] >> self.depth_mask['depth'] ]
+        graph = [ self.source ]
+
+        if 'depth_mask' in cell_names:
+            graph += [ self.source['depth'] >> self.depth_mask['depth'] ]
+        if 'converter' in cell_names:
+            graph += [ self.source[keys] >> self.converter[keys] ]
+        if 'depth_to_3d' in cell_names:
+            graph += [ self.source['depth'] >> self.depth_to_3d['depth'],
+                      self.source['K'] >> self.depth_to_3d['K'] ]
 
         return graph

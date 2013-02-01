@@ -1,14 +1,14 @@
 """
 Module defining several inputs for the object recognition pipeline
 """
+from .camera_base import CameraType
+from ecto import BlackBoxCellInfo as CellInfo, BlackBoxForward as Forward
+from ecto_image_pipeline.base import RescaledRegisteredDepth
+from ecto_image_pipeline.conversion import MatToPointCloudXYZOrganized
+from ecto_opencv.calib import DepthTo3d, CropBox
 import ecto
 import ecto_ros
 import ecto_ros.ecto_sensor_msgs as ecto_sensor_msgs
-from ecto_opencv.calib import DepthTo3d, CropBox
-from ecto_image_pipeline.base import RescaledRegisteredDepth
-from ecto_image_pipeline.io.source import CameraType
-from ecto_image_pipeline.conversion import MatToPointCloudXYZOrganized
-from ecto import BlackBoxCellInfo as CellInfo, BlackBoxForward as Forward
 
 ImageSub = ecto_sensor_msgs.Subscriber_Image
 CameraInfoSub = ecto_sensor_msgs.Subscriber_CameraInfo
@@ -25,6 +25,14 @@ class BaseSource(ecto.BlackBox):
     #_depth_mask = DepthMask
 
     CAMERA_TYPE = CameraType.RGBD
+
+    @staticmethod
+    def fps_translate(fps):
+        return None
+
+    @staticmethod
+    def res_translate(res):
+        return None
 
     @staticmethod
     def declare_cells(_p):
