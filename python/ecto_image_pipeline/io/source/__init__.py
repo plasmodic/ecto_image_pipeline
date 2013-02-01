@@ -1,3 +1,8 @@
+"""
+Define a few generic functions for dealing with sources
+"""
+from ecto_openni import SXGA_RES, VGA_RES, FPS_15, FPS_30
+
 CameraType = type('CameraType', (object,),
                    dict(RGBD='RGBD',
                         Monocular='Monocular',
@@ -40,6 +45,9 @@ def load_source(m_name, source_type):
 
 
 def create_source(package_name, source_type, **kwargs):
+    """
+    Loads a camera type from a given package to create a cell that is a camera source
+    """
     import sys
     try:
         source_cls = load_source(package_name, source_type)
@@ -52,6 +60,31 @@ def create_source(package_name, source_type, **kwargs):
     _assert_source_interface(cell)
     return cell
 
+def add_camera_group(parser, group_name='camera'):
+    """
+    Add an argument group for resolution and fps of a camera
+
+    :param parser: the parser to add a group to
+    :param group_name: the name of the camera group
+    """
+    res = {'vga': VGA_RES, 'sxga': SXGA_RES}
+    fps = {'15': FPS_15, '30': FPS_30}
+
+    def fps_converter(string):
+        if string not in fps:
+            raise RuntimeError('Invalid choice "%s": choose from %s' % (string, str(fps.keys())))
+        return fps[string]
+
+    def res_converter(string):
+        if string not in res:
+            raise RuntimeError('Invalid choice "%s": choose from %s' % (string, str(res.keys())))
+        return res[string]
+
+    group = parser.add_argument_group(group_name)
+    group.add_argument('--fps', metavar='FPS', dest='fps', type=fps_converter,
+                       default=fps['30'], help='The temporal resolution of the captured data')
+    group.add_argument('--res', metavar='RES', dest='res', type=res_converter,
+                       default=res['sxga'], help='The image resolution of the captured data.')
 
 ######################################################################################################
 #testing user interface interface
