@@ -53,6 +53,7 @@ def create_source(package_name, source_type, outputs_list=['K', 'image', 'depth'
     :param source_type: the name of the cell to load
     :param outputs_list: a list of output tendrils the source should have. It has to be a subset of:
                 K: the calibration matrix
+                camera: a CameraInfo object
                 image: the RGB image as a cv::Mat
                 depth: the depth image as a cv::Mat (int16, uint16 or float)
                 mask_depth: a mask of where the depth can be valid (useful for Kinect)
@@ -79,7 +80,7 @@ def create_source(package_name, source_type, outputs_list=['K', 'image', 'depth'
 
     if outputs_list:
         # check the outputs
-        allowed_outputs = set(['K', 'image', 'depth', 'mask_depth', 'points3d'])
+        allowed_outputs = set(['camera', 'depth', 'image', 'K', 'mask_depth', 'points3d'])
         remain = set(outputs_list).difference(allowed_outputs)
         if remain:
             raise RuntimeError('Outputs are not part of the supported ones: %s' % str(remain))
@@ -142,4 +143,3 @@ def _assert_source_interface(cell):
                                       'Must have an output named %s, with type %s\n'
                                       'This cells output at %s has type %s' % (x, 'cv::Mat', x, type_name))
     return cell
-###########################################################################################################
