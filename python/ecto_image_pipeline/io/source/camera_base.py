@@ -11,7 +11,7 @@ CameraType = type('CameraType', (object,),
                         )
                    )
 
-def load_source(m_name, source_type):
+def create_source_class(m_name, source_type):
     import inspect
     import pkgutil
     '''
@@ -61,7 +61,7 @@ def create_source(package_name, source_type, outputs_list=['K', 'image', 'depth'
     """
     import sys
     try:
-        source_cls = load_source(package_name, source_type)
+        source_cls = create_source_class(package_name, source_type)
     except RuntimeError as e:
         print >> sys.stderr, e
         sys.exit(-1)
