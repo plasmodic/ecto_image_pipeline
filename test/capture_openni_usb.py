@@ -2,7 +2,7 @@
 
 import ecto
 from ecto_opencv.highgui import imshow, ImageSaver, VideoCapture
-from image_pipeline.io.source import create_source
+from ecto_image_pipeline.io.source import create_source
 from ecto.opts import run_plasm, scheduler_options
 
 import argparse
@@ -33,14 +33,14 @@ image_saver = ImageSaver(filename_format=os.path.join(args.output, 'frame_%010d_
 plasm = ecto.Plasm()
 plasm.connect(
 #      camera['image'] >> imshow(name='Mono')['image'],
-      source['depth_raw'] >> imshow(name='Depth')['image'],
+      source['depth'] >> imshow(name='Depth')['image'],
       source['image'] >> imshow(name='RGB')['image']
       )
 
 if not args.preview:
     plasm.connect(
         source['image'] >> image_saver['image'],
-    	source['depth_raw'] >> depth_saver['image'],
+    	source['depth'] >> depth_saver['image'],
 #        camera['image'] >> mono_saver['image'],
     )
 
