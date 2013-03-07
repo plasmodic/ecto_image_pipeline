@@ -41,7 +41,7 @@ class OpenNISource(BlackBox):
 
     @staticmethod
     def declare_direct_params(p):
-        p.declare('outputs_list', 'A list of outputs to support', ['K', 'image', 'depth'])
+        p.declare('outputs_list', 'A list of outputs to support', ['K', 'image', 'depth', 'mask_depth', 'camera', 'points3d'])
 
     @classmethod
     def declare_forwards(cls, p):
