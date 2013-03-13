@@ -1,6 +1,6 @@
 <package>
   <name>ecto_image_pipeline</name>
-  <version>0.4.10</version>
+  <version>0.4.11</version>
   <description>Common tools for image based pipelines. Includes stereo and mono camera drivers, rectification, image sinks, calibration, etc..</description>
   <author>Kurt Konolige</author>
   <author email="erublee@willowgarage.com">Ethan Rublee</author>
