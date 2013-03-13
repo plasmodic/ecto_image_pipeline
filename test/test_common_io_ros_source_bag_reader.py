@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-from image_pipeline.io.source.ros import BagReader
-from image_pipeline.io.source import _assert_source_interface
+from ecto_image_pipeline.io.source.ros import BagReader
+from ecto_image_pipeline.io.source.camera_base import _assert_source_interface
 br = BagReader()
 print br.__doc__
 assert 'image_message' in br.__doc__
@@ -18,5 +18,5 @@ _assert_source_interface(br)
 #test the bag file name parameter
 br = BagReader(bag='testy.bag')
 assert br.params.bag == 'testy.bag'
-assert br._source.params.bag == 'testy.bag'
+assert br.source.params.bag == 'testy.bag'
 _assert_source_interface(br)

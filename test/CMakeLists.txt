@@ -1,10 +1,3 @@
-find_package(GTest)
-
-if(NOT GTEST_FOUND)
-  message(STATUS "Disabling testing since gtest was not found.")
-  return()
-endif()
-
 include_directories(${GTEST_INCLUDE_DIRS})
 
 add_executable(image_pipeline-test
@@ -25,8 +18,9 @@ add_test(image_pipeline-test ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/image_pipeline-te
 macro(pytest pyfile)
   string(REPLACE ";" " " args "${ARGN}")
 
-  add_test(image_pipeline_${pyfile}
-    ${CMAKE_CURRENT_SOURCE_DIR}/run_test.py ${CMAKE_BINARY_DIR}/python_path.sh ${CMAKE_CURRENT_SOURCE_DIR}/${pyfile}.py ${ARGN}
+  add_test(ecto_image_pipeline_${pyfile}
+    ${CATKIN_ENV}
+    ${CMAKE_CURRENT_SOURCE_DIR}/${pyfile}.py ${ARGN}
     )
 endmacro()
 
