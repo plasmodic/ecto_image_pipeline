@@ -41,15 +41,13 @@ class BaseSource(ecto.BlackBox):
                 'crop_box': CellInfo(CropBox)}
 
     @staticmethod
-    def declare_direct_params(p):
-        p.declare('rgb_image_topic','The ROS topic for the RGB image.','/camera/rgb/image_color')
-        p.declare('rgb_camera_info','The ROS topic for the RGB camera info.','/camera/rgb/camera_info')
-        p.declare('depth_image_topic','The ROS topic for the depth image.','/camera/depth_registered/image')
-        p.declare('depth_camera_info','The ROS topic for the depth camera info.','/camera/depth_registered/camera_info')
-
-    @staticmethod
     def declare_forwards(_p):
         p = {'crop_box': 'all'}
+        p['image'] = [Forward('topic_name', 'rgb_image_topic', 'The ROS topic for the RGB image.','/camera/rgb/image_color')]
+        p['image_info'] = [Forward('topic_name', 'rgb_camera_info', 'The ROS topic for the RGB camera info.','/camera/rgb/camera_info')]
+        p['depth'] = [Forward('topic_name', 'depth_image_topic','The ROS topic for the depth image.','/camera/depth_registered/image')]
+        p['depth_info'] = [Forward('topic_name', 'depth_camera_info','The ROS topic for the depth camera info.','/camera/depth_registered/camera_info')]
+
         i = {}
         o = {'camera_info': [Forward('K', new_doc='The camera intrinsics matrix.')],
              'cloud': [Forward('point_cloud')],
@@ -71,7 +69,7 @@ class BaseSource(ecto.BlackBox):
         #self._depth_mask = BaseSource._depth_mask()
 
     def connections(self, p):
-        #ros message converers
+        #ros message converters
         graph = [self.source["image"] >> self._rgb_image["image"],
                   self.source["depth"] >> self._depth_converter["image"],
                   self.source["image_info"] >> self.camera_info['camera_info']
@@ -103,21 +101,21 @@ class OpenNISubscriber(BaseSource):
     def declare_cells(p):
         #this is the private synchronization subscriber setup.
         #NOTE that these are all ROS remappable on the command line in typical ros fashion
-        #TODO Should these just be simple names where remapping is expected?
         qsize = 1
-        subs = dict(image=ImageSub(topic_name=p.rgb_image_topic, queue_size=qsize),
-                    image_info=CameraInfoSub(topic_name=p.rgb_camera_info, queue_size=qsize),
-                    depth=ImageSub(topic_name=p.depth_image_topic, queue_size=qsize),
-                    depth_info=CameraInfoSub(topic_name=p.depth_camera_info, queue_size=qsize)
-                 )
         cells = BaseSource.declare_cells(p)
+        subs = dict(image=ImageSub(topic_name='/bogus_topic', queue_size=qsize),
+                    image_info=CameraInfoSub(topic_name='/bogus_topic', queue_size=qsize),
+                    depth=ImageSub(topic_name='/bogus_topic', queue_size=qsize),
+                    depth_info=CameraInfoSub(topic_name='/bogus_topic', queue_size=qsize)
+                 )
+        cells.update(subs)
         cells['source'] = ecto_ros.Synchronizer('Synchronizator', subs=subs)
 
         return cells
 
     @staticmethod
     def declare_forwards(p_in):
-        (p,i,o) = BaseSource.declare_forwards(p_in)
+        p, i, o = BaseSource.declare_forwards(p_in)
 
         #notice that this is not a forward declare
         #its a declaration with the name, and a pointer to a tendril.
@@ -136,26 +134,21 @@ class BagReader(BaseSource):
     def declare_cells(p):
         #this is the private synchronization subscriber setup.
         #NOTE that these are all ROS remappable on the command line in typical ros fashion
-        #TODO Should these just be simple names where remapping is expected?
-        baggers = dict(image=ImageBagger(topic_name=p.rgb_image_topic),
-                       depth=ImageBagger(topic_name=p.depth_image_topic),
-                       image_info=CameraInfoBagger(topic_name=p.rgb_camera_info),
-                       depth_info=CameraInfoBagger(topic_name=p.depth_camera_info),
-                       )
-
         cells = BaseSource.declare_cells(p)
-        cells['source'] = ecto_ros.BagReader('Bag Reader', bag=p.bag, baggers=baggers)
+        baggers = dict(image=ImageBagger(topic_name='/bogus_topic'),
+                       depth=ImageBagger(topic_name='/bogus_topic'),
+                       image_info=CameraInfoBagger(topic_name='/bogus_topic'),
+                       depth_info=CameraInfoBagger(topic_name='/bogus_topic'),
+                       )
+        cells.update(baggers)
+        cells['source'] = ecto_ros.BagReader('Bag Reader', bag='/bogus', baggers=baggers)
 
         return cells
 
     @staticmethod
-    def declare_direct_params(p):
-        BaseSource.declare_direct_params(p)
-        p.declare('bag', "The bag file name.", "data.bag")
-
-    @staticmethod
     def declare_forwards(p_in):
         p, i, o = BaseSource.declare_forwards(p_in)
+        p['source'] = [Forward('bag', 'bag', "The bag file name.", "data.bag")]
 
         o['source'] = [Forward('image', 'image_message'), Forward('depth', 'depth_message'),
                        Forward('image_info', 'image_info_message'), Forward('depth_info', 'depth_info_message')]

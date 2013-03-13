@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-from image_pipeline.io.source.ros import OpenNISubscriber
-from image_pipeline.io.source import _assert_source_interface
+from ecto_image_pipeline.io.source.ros import OpenNISubscriber
+from ecto_image_pipeline.io.source.camera_base import _assert_source_interface
 kr = OpenNISubscriber()
 
 assert 'image_message' in kr.__doc__
@@ -13,3 +13,8 @@ assert 'boost::shared_ptr<sensor_msgs::Image_<std::allocator<void> > const>' == 
 
 #this should pass our interface check
 _assert_source_interface(kr)
+
+# Make sure we can reassign topics
+new_topic = '/overriden_depth_image_topic'
+kr = OpenNISubscriber(depth_image_topic=new_topic)
+assert kr.params.depth_image_topic == new_topic
