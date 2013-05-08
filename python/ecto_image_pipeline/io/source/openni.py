@@ -50,7 +50,8 @@ class OpenNISource(BlackBox):
         p = {'source': [BlackBoxForward('image_fps', 'fps'), BlackBoxForward('image_mode','res')]}
         o = {'source': [BlackBoxForward('image', '', 'The RGB image from a OpenNI device.'),
                         BlackBoxForward('depth', 'depth', 'The The 16bit depth image.'),
-                        BlackBoxForward('K', '', 'The camera intrinsics matrix.')]}
+                        BlackBoxForward('K_depth', '', 'The camera intrinsics matrix.'),
+                        BlackBoxForward('K_image', '', 'The camera intrinsics matrix.')]}
         if 'depth_mask' in cell_names:
             o['depth_mask'] = [BlackBoxForward('mask', 'mask_depth')]
         if 'converter' in cell_names:
@@ -71,7 +72,6 @@ class OpenNISource(BlackBox):
         if 'converter' in cell_names:
             graph += [ self.source[keys] >> self.converter[keys] ]
         if 'depth_to_3d' in cell_names:
-            graph += [ self.source['depth'] >> self.depth_to_3d['depth'],
-                      self.source['K'] >> self.depth_to_3d['K'] ]
+            graph += [ self.source['depth', 'K_depth'] >> self.depth_to_3d['depth', 'K'] ]
 
         return graph

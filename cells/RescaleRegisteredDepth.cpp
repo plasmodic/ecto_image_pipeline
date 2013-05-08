@@ -51,7 +51,6 @@ struct RescaledRegisteredDepth {
       cv::resize(*mask_in_, subregion, subregion.size(), CV_INTER_NN);
       mask.rowRange(dsize.height * factor, output.rows).setTo(cv::Scalar(0, 0, 0));
       *mask_out_ = mask;
-
     }
 
     return ecto::OK;

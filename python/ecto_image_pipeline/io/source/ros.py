@@ -36,7 +36,8 @@ class BaseSource(ecto.BlackBox):
 
     @staticmethod
     def declare_cells(_p):
-        return {'camera_info': CellInfo(ecto_ros.CameraInfo2Cv),
+        return {'camera_info_image': CellInfo(ecto_ros.CameraInfo2Cv),
+                'camera_info_depth': CellInfo(ecto_ros.CameraInfo2Cv),
                 'cloud': CellInfo(MatToPointCloudXYZOrganized),
                 'crop_box': CellInfo(CropBox)}
 
@@ -49,7 +50,8 @@ class BaseSource(ecto.BlackBox):
         p['depth_info'] = [Forward('topic_name', 'depth_camera_info','The ROS topic for the depth camera info.','/camera/depth_registered/camera_info')]
 
         i = {}
-        o = {'camera_info': [Forward('K', new_doc='The camera intrinsics matrix.')],
+        o = {'camera_info_image': [Forward('K', 'K_image', 'The camera intrinsics matrix of the image camera.')],
+             'camera_info_depth': [Forward('K', 'K_depth', 'The camera intrinsics matrix of the depth camera.')],
              'cloud': [Forward('point_cloud')],
              'crop_box': [Forward('rgb', 'image', 'The RGB image from a OpenNI device.'),
                           Forward('depth', new_doc='The depth map from a OpenNI device. This is a CV_32FC1, with values in meters.'),
@@ -72,7 +74,8 @@ class BaseSource(ecto.BlackBox):
         #ros message converters
         graph = [self.source["image"] >> self._rgb_image["image"],
                   self.source["depth"] >> self._depth_converter["image"],
-                  self.source["image_info"] >> self.camera_info['camera_info']
+                  self.source["depth_info"] >> self.camera_info_depth['camera_info'],
+                  self.source["image_info"] >> self.camera_info_image['camera_info']
                   ]
 
         #rescaling ...
@@ -83,13 +86,13 @@ class BaseSource(ecto.BlackBox):
         #depth ~> 3d calculations
         graph += [
                   self._depth_map['depth'] >> self._points3d['depth'],
-                  self.camera_info['K'] >> self._points3d['K'],
+                  self.camera_info_depth['K'] >> self._points3d['K'],
                   #self._depth_map['depth'] >> self._depth_mask['depth'],
                   #self._rgb_image['image'] >> self._cloud['image'],
                   self._points3d['points3d'] >> self.crop_box['points3d'],
                   self._rgb_image['image'] >> self.crop_box['rgb'],
                   self._depth_map['depth'] >> self.crop_box['depth'],
-                  self.crop_box['points3d'] >> self.cloud['points']                  
+                  self.crop_box['points3d'] >> self.cloud['points']
                  ]
 
         return graph
@@ -103,10 +106,10 @@ class OpenNISubscriber(BaseSource):
         #NOTE that these are all ROS remappable on the command line in typical ros fashion
         qsize = 1
         cells = BaseSource.declare_cells(p)
-        subs = dict(image=ImageSub(topic_name='/bogus_topic', queue_size=qsize),
-                    image_info=CameraInfoSub(topic_name='/bogus_topic', queue_size=qsize),
-                    depth=ImageSub(topic_name='/bogus_topic', queue_size=qsize),
-                    depth_info=CameraInfoSub(topic_name='/bogus_topic', queue_size=qsize)
+        subs = dict(image=ImageSub(topic_name='/bogus_topic_image', queue_size=qsize),
+                    image_info=CameraInfoSub(topic_name='/bogus_topic_image', queue_size=qsize),
+                    depth=ImageSub(topic_name='/bogus_topic_depth', queue_size=qsize),
+                    depth_info=CameraInfoSub(topic_name='/bogus_topic_depth', queue_size=qsize)
                  )
         cells.update(subs)
         cells['source'] = ecto_ros.Synchronizer('Synchronizator', subs=subs)

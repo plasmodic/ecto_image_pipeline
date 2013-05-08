@@ -45,7 +45,7 @@ def create_source_class(m_name, source_type):
     raise RuntimeError("No source found with type %s in package %s" % (source_type, m_name))
 
 
-def create_source(package_name, source_type, outputs_list=['K', 'image', 'depth'], **kwargs):
+def create_source(package_name, source_type, outputs_list=['K_depth', 'K_image', 'image', 'depth'], **kwargs):
     """
     Loads a camera type from a given package to create a cell that is a camera source
     
@@ -80,7 +80,7 @@ def create_source(package_name, source_type, outputs_list=['K', 'image', 'depth'
 
     if outputs_list:
         # check the outputs
-        allowed_outputs = set(['camera', 'depth', 'image', 'K', 'mask_depth', 'points3d'])
+        allowed_outputs = set(['camera', 'depth', 'image', 'K_depth', 'K_image', 'mask_depth', 'points3d'])
         remain = set(outputs_list).difference(allowed_outputs)
         if remain:
             raise RuntimeError('Outputs are not part of the supported ones: %s' % str(remain))
@@ -130,12 +130,12 @@ def _assert_source_interface(cell):
 
     outputs = dir(cell.outputs)
     #all sources must produce the following
-    for x in ('K', 'image', 'depth'):
+    for x in ('K_depth', 'K_image', 'image', 'depth'):
         if x not in outputs:
             raise NotImplementedError('The cell %s does not correctly implement the ' % cell +
                                       'source interface. Must have an output named %s' % x)
     #type checks
-    for x in ('K', 'image', 'depth'):
+    for x in ('K_depth', 'K_image', 'image', 'depth'):
         type_name = cell.outputs.at(x).type_name
         #TODO add more explicit types.
         if type_name != 'cv::Mat':
