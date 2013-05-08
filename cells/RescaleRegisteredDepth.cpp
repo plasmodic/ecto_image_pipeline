@@ -5,55 +5,59 @@
 #include <opencv2/rgbd/rgbd.hpp>
 
 using ecto::tendrils;
-namespace image_pipeline
-{
-  struct RescaledRegisteredDepth
-  {
-    static void
-    declare_params(tendrils& params)
-    {
-    }
 
-    static void
-    declare_io(const tendrils& params, tendrils& in, tendrils& out)
-    {
-      in.declare<cv::Mat>("depth", "The depth image to rescale.").required(true);
-      in.declare<cv::Mat>("image", "The rgb image.").required(true);
-      out.declare<cv::Mat>("depth", "The rescaled depth image.");
-    }
-    void
-    configure(const tendrils& p, const tendrils& inputs, const tendrils& outputs)
-    {
-      depth_in = inputs["depth"];
-      image_in = inputs["image"];
-      depth_out = outputs["depth"];
-    }
+struct RescaledRegisteredDepth {
+  static void declare_params(tendrils& params) {
+  }
 
-    int
-    process(const tendrils& in, const tendrils& out)
-    {
-      cv::Size dsize = depth_in->size(), isize = image_in->size();
-      cv::Mat depth;
-      cv::Mat valid_mask;
-      rescaleDepth(*depth_in, CV_32F, depth);
+  static void declare_io(const tendrils& params, tendrils& in, tendrils& out) {
+    in.declare(&RescaledRegisteredDepth::depth_in_, "depth", "The depth image to rescale.").required(true);
+    in.declare(&RescaledRegisteredDepth::mask_in_, "mask", "A mask of the size of depth, that will be resized too.");
+    in.declare(&RescaledRegisteredDepth::image_in_, "image", "The rgb image.").required(true);
 
-      if (dsize == isize)
-      {
-        *depth_out = depth;
-        return ecto::OK;
-      }
+    out.declare(&RescaledRegisteredDepth::depth_out_, "depth", "The rescaled depth image.");
+    out.declare(&RescaledRegisteredDepth::mask_out_, "mask", "The rescaled depth image.");
+  }
 
-      float factor = float(isize.width) / dsize.width; //scaling factor.
-      cv::Mat output(isize, depth.type(), std::numeric_limits<float>::quiet_NaN()); //output is same size as image.
-      //resize into the subregion of the correct aspect ratio
-      cv::Mat subregion(output.rowRange(0, dsize.height * factor));
-      //use nearest neighbor to prevent discontinuities causing bogus depth.
-      cv::resize(depth, subregion, subregion.size(), CV_INTER_NN);
-      *depth_out = output;
+  int process(const tendrils& in, const tendrils& out) {
+    cv::Size dsize = depth_in_->size(), isize = image_in_->size();
+
+    if (dsize == isize) {
+      *depth_out_ = *depth_in_;
+      *mask_out_ = *mask_in_;
       return ecto::OK;
     }
-    ecto::spore<cv::Mat> image_in, depth_in, depth_out;
-  };
-}
-ECTO_CELL(base, image_pipeline::RescaledRegisteredDepth, "RescaledRegisteredDepth",
-          "Rescale the openni depth image to be the same size as the image if necessary.");
+
+    cv::Mat depth;
+    cv::Mat valid_mask;
+    rescaleDepth(*depth_in_, CV_32F, depth);
+
+    float factor = float(isize.width) / dsize.width; //scaling factor.
+    cv::Mat output(isize, depth.type());
+    //resize into the subregion of the correct aspect ratio
+    cv::Mat subregion(output.rowRange(0, dsize.height * factor));
+    //use nearest neighbor to prevent discontinuities causing bogus depth.
+    cv::resize(depth, subregion, subregion.size(), CV_INTER_NN);
+    output.rowRange(dsize.height * factor, output.rows).setTo(
+        cv::Scalar(std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN(),
+            std::numeric_limits<float>::quiet_NaN()));
+    *depth_out_ = output;
+
+    if (!mask_in_->empty()) {
+      assert(mask_in_->size() == depth_in_->size());
+      cv::Mat mask(isize, CV_8U);
+      cv::Mat subregion(mask.rowRange(0, dsize.height * factor));
+      //use nearest neighbor to prevent discontinuities causing bogus depth.
+      cv::resize(*mask_in_, subregion, subregion.size(), CV_INTER_NN);
+      mask.rowRange(dsize.height * factor, output.rows).setTo(cv::Scalar(0, 0, 0));
+      *mask_out_ = mask;
+
+    }
+
+    return ecto::OK;
+  }
+  ecto::spore<cv::Mat> image_in_, depth_in_, depth_out_, mask_in_, mask_out_;
+};
+
+ECTO_CELL(base, RescaledRegisteredDepth, "RescaledRegisteredDepth",
+    "Rescale the openni depth image to be the same size as the image if necessary.")
