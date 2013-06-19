@@ -7,6 +7,70 @@
 #include <fstream>
 namespace image_pipeline
 {
+namespace impl
+{
+template<typename PointT, typename DepthT>
+inline void
+cvToCloudOrganized(const cv::Mat_<cv::Vec<DepthT, 3> >& points3d, pcl::PointCloud<PointT>& cloud)
+{
+  typedef cv::Vec<DepthT, 3> DepthVec;
+  assert(points3d.channels() == 3);
+
+  int width = points3d.cols, height = points3d.rows;
+
+  cloud.points.resize(width * height);
+  cloud.width = width;
+  cloud.height = height;
+
+  for (int v = 0; v < height; ++v)
+  {
+    const DepthVec* begin = reinterpret_cast<const DepthVec*>(points3d.ptr(v));
+    for (int u = 0; u < width; ++u, ++begin)
+    {
+      PointT& p = cloud(u, v);
+      p.x = (*begin)[0];
+      p.y = (*begin)[1];
+      p.z = (*begin)[2];
+    }
+  }
+}
+
+template<typename PointT, typename DepthT>
+inline void
+cvToCloudRGBOrganized(const cv::Mat_<cv::Vec<DepthT, 3> >& points3d, const cv::Mat& rgb, pcl::PointCloud<PointT>& cloud)
+{
+  typedef cv::Vec<DepthT, 3> DepthVec;
+  assert(points3d.channels() == 3);
+  assert(rgb.channels() == 3);
+  assert(rgb.depth() == 0);
+
+  assert(points3d.cols == rgb.cols && points3d.rows == rgb.rows);
+
+  int width = points3d.cols, height = points3d.rows;
+
+  cloud.points.resize(width * height);
+  cloud.width = width;
+  cloud.height = height;
+
+  for (int v = 0; v < height; ++v)
+  {
+    const DepthVec* begin = reinterpret_cast<const DepthVec*>(points3d.ptr(v));
+    const cv::Vec3b* begin_rgb = rgb.ptr<cv::Vec3b>(v);
+    for (int u = 0; u < width; ++u, ++begin_rgb, ++begin)
+    {
+      PointT& p = cloud(u, v);
+      p.x = (*begin)[0];
+      p.y = (*begin)[1];
+      p.z = (*begin)[2];
+      // bgr layout
+      p.r = (*begin_rgb)[0];
+      p.g = (*begin_rgb)[1];
+      p.b = (*begin_rgb)[2];
+    }
+  }
+}
+}
+
   /**
    * \breif convert an opencv collection of points to a pcl::PoinCloud, your opencv mat should have NAN's for invalid points.
    * @param points3d opencv matrix of nx1 3 channel points
@@ -75,50 +139,33 @@ namespace image_pipeline
 
   template<typename PointT>
   inline void
-  cvToCloudOrganized(const cv::Mat_<cv::Point3f>& points3d, pcl::PointCloud<PointT>& cloud, size_t width, size_t height,
-                     const cv::Mat& mask = cv::Mat())
+  cvToCloudOrganized(const cv::Mat& points3d, pcl::PointCloud<PointT>& cloud)
   {
-    cloud.points.resize(width * height);
-    cloud.width = width;
-    cloud.height = height;
+    assert(points3d.channels() == 3);
+    assert(points3d.depth() == 5 || points3d.depth() == 6);
 
-    for (size_t v = 0; v < height; ++v)
-    {
-      const float * begin = reinterpret_cast<const float*>(points3d.ptr(v));for (size_t u = 0; u < width; ++u)
-      {
-        PointT& p = cloud(u, v);
-        p.x = *(begin++);
-        p.y = *(begin++);
-        p.z = *(begin++);
-      }
-    }
+    if (points3d.depth() == 5)
+      impl::cvToCloudOrganized<PointT, float>(points3d, cloud);
+    else
+      impl::cvToCloudOrganized<PointT, double>(points3d, cloud);
   }
 
   template<typename PointT>
   inline void
-  cvToCloudRGBOrganized(const cv::Mat_<cv::Point3f>& points3d, pcl::PointCloud<PointT>& cloud, const cv::Mat& rgb, size_t width, size_t height,
-                     const cv::Mat& mask = cv::Mat())
+  cvToCloudRGBOrganized(const cv::Mat& points3d, const cv::Mat& rgb, pcl::PointCloud<PointT>& cloud)
   {
-    cloud.points.resize(width * height);
-    cloud.width = width;
-    cloud.height = height;
+    assert(points3d.channels() == 3);
+    assert(rgb.channels() == 3);
+    assert(rgb.depth() == 0);
 
-    for (size_t v = 0; v < height; ++v)
-    {
-      const float * begin = reinterpret_cast<const float*>(points3d.ptr(v));
-      const cv::Vec3b * begin_rgb = rgb.ptr<cv::Vec3b>(v);
-      for (size_t u = 0; u < width; ++u)
-      {
-        PointT& p = cloud(u, v);
-        p.x = *(begin++);
-        p.y = *(begin++);
-        p.z = *(begin++);
-        // bgr layout
-        p.r = begin_rgb[u][2];
-        p.g = begin_rgb[u][1];
-        p.b = begin_rgb[u][0];
-      }
-    }
+    assert(points3d.cols == rgb.cols && points3d.rows == rgb.rows);
+
+    assert(points3d.depth() == 5 || points3d.depth() == 6);
+
+    if (points3d.depth() == 5)
+      impl::cvToCloudRGBOrganized<PointT, float>(points3d, rgb, cloud);
+    else
+      impl::cvToCloudRGBOrganized<PointT, double>(points3d, rgb, cloud);
   }
 
       /**

@@ -107,7 +107,7 @@ namespace image_pipeline
       process(const tendrils& inputs, const tendrils& outputs)
       {
         CloudType::Ptr point_cloud(new CloudType);
-        cvToCloudOrganized(*points3d, *point_cloud, (*points3d).cols, (*points3d).rows);
+        cvToCloudOrganized(*points3d, *point_cloud);
         *cloud_out = point_cloud;
         return ecto::OK;
       }
@@ -164,7 +164,8 @@ namespace image_pipeline
           process(const tendrils& inputs, const tendrils& outputs)
           {
             CloudType::Ptr point_cloud(new CloudType);
-            cvToCloudRGBOrganized(*points3d, *point_cloud, *image, (*points3d).cols, (*points3d).rows);
+
+            cvToCloudRGBOrganized(*points3d, *image, *point_cloud);
             *cloud_out = point_cloud;
             return ecto::OK;
           }
