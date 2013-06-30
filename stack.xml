@@ -4,8 +4,8 @@
   <description>Common tools for image based pipelines. Includes stereo and mono camera drivers, rectification, image sinks, calibration, etc..</description>
   <author>Kurt Konolige</author>
   <author email="erublee@willowgarage.com">Ethan Rublee</author>
-  <maintainer email="vrabaud@willowgarage.com">Vincent Rabaud</maintainer>
-  <url>http://ecto.willowgarage.com</url>
+  <maintainer email="vincent.rabaud@gmail.com">Vincent Rabaud</maintainer>
+  <url>http://plasmodic.github.io/ecto_image_pipeline/</url>
   <license>BSD</license>
   <copyright>Willow Garage</copyright>
 
