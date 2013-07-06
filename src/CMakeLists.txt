@@ -14,14 +14,7 @@ target_link_libraries(ecto_image_pipeline
 )
 
 #install the main shared lib
-if (ROS_FUERTE_FOUND)
-install(TARGETS ecto_image_pipeline
-        DESTINATION lib
-        COMPONENT main
-)
-else()
 install(TARGETS ecto_image_pipeline
         DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         COMPONENT main
 )
-endif()
