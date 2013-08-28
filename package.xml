@@ -14,16 +14,17 @@
   <build_depend>libg2o</build_depend>
   <build_depend>opencv_candidate</build_depend>
   <build_depend>opencv2</build_depend>
-  <build_depend>pcl</build_depend>
+  <build_depend>pcl_ros</build_depend>
 
   <run_depend>boost</run_depend>
   <run_depend>ecto</run_depend>
   <run_depend>ecto_opencv</run_depend>
+  <run_depend>ecto_ros</run_depend>
   <run_depend>eigen</run_depend>
   <run_depend>libg2o</run_depend>
   <run_depend>opencv_candidate</run_depend>
   <run_depend>opencv2</run_depend>
-  <run_depend>pcl</run_depend>
+  <run_depend>pcl_ros</run_depend>
 
   <buildtool_depend>catkin</buildtool_depend>
 </package>
