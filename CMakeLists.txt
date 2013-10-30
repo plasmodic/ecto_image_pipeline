@@ -32,9 +32,7 @@ include_directories(SYSTEM ${Eigen_INCLUDE_DIRS}
 add_subdirectory(cells)
 add_subdirectory(src)
 
-option(BUILD_TEST "Build tests" ON)
-if(BUILD_TEST)
-  enable_testing()
+if(CATKIN_ENABLE_TESTING)
   add_subdirectory(test)
 endif()
 
