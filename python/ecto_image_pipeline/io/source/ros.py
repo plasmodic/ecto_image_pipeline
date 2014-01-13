@@ -46,7 +46,7 @@ class BaseSource(ecto.BlackBox):
         p = {'crop_box': 'all'}
         p['image'] = [Forward('topic_name', 'rgb_image_topic', 'The ROS topic for the RGB image.','/camera/rgb/image_color')]
         p['image_info'] = [Forward('topic_name', 'rgb_camera_info', 'The ROS topic for the RGB camera info.','/camera/rgb/camera_info')]
-        p['depth'] = [Forward('topic_name', 'depth_image_topic','The ROS topic for the depth image.','/camera/depth_registered/image')]
+        p['depth'] = [Forward('topic_name', 'depth_image_topic','The ROS topic for the depth image.','/camera/depth_registered/image_raw')]
         p['depth_info'] = [Forward('topic_name', 'depth_camera_info','The ROS topic for the depth camera info.','/camera/depth_registered/camera_info')]
 
         i = {}
