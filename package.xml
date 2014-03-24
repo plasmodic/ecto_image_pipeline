@@ -9,6 +9,7 @@
   <license>BSD</license>
 
   <build_depend>boost</build_depend>
+  <build_depend>cmake_modules</build_depend>
   <build_depend>ecto</build_depend>
   <build_depend>ecto_opencv</build_depend>
   <build_depend>libg2o</build_depend>
