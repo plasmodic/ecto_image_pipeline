@@ -1,3 +1,8 @@
+Forthcoming
+-----------
+* re-add opencv_candidate as a dep as it is find_packaged
+* Contributors: Vincent Rabaud
+
 0.5.1 (2014-04-13)
 ------------------
 * update dependencies
