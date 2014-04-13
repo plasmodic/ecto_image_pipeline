@@ -1,5 +1,5 @@
-Forthcoming
------------
+0.5.1 (2014-04-13)
+------------------
 * update dependencies
 * Contributors: Vincent Rabaud
 
