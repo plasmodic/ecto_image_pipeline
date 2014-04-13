@@ -1,3 +1,8 @@
+Forthcoming
+-----------
+* update dependencies
+* Contributors: Vincent Rabaud
+
 0.5.0 (2014-04-13)
 ------------------
 * no need for g2o cells: g2o things should be done through the library anyway
