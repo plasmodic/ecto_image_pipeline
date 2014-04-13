@@ -1,3 +1,11 @@
+Forthcoming
+-----------
+* no need for g2o cells: g2o things should be done through the library anyway
+* make the code compile on Indigo
+* use the proper new camera topic
+* use the newer catkin variable for tests
+* Contributors: Vincent Rabaud
+
 0.4.13 (2013-08-28 19:03:21 -0800)
 ----------------------------------
 - fix dependencies with PCL
