@@ -18,4 +18,3 @@ link_ecto(base ecto_image_pipeline
 )
 
 add_subdirectory(conversion)
-add_subdirectory(g2o)
