@@ -1,5 +1,5 @@
-Forthcoming
------------
+0.5.0 (2014-04-13)
+------------------
 * no need for g2o cells: g2o things should be done through the library anyway
 * make the code compile on Indigo
 * use the proper new camera topic
