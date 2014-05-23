@@ -4,7 +4,11 @@ Module defining several inputs for the object recognition pipeline
 from .camera_base import CameraType
 from ecto import BlackBoxCellInfo as CellInfo, BlackBoxForward as Forward
 from ecto_image_pipeline.base import RescaledRegisteredDepth
-from ecto_image_pipeline.conversion import MatToPointCloudXYZOrganized
+try:
+    from ecto_image_pipeline.conversion import MatToPointCloudXYZOrganized
+    HAS_PCL = True
+except:
+    HAS_PCL = False
 from ecto_opencv.calib import DepthTo3d, CropBox
 import ecto
 import ecto_ros
@@ -36,10 +40,12 @@ class BaseSource(ecto.BlackBox):
 
     @staticmethod
     def declare_cells(_p):
-        return {'camera_info_image': CellInfo(ecto_ros.CameraInfo2Cv),
+        res = {'camera_info_image': CellInfo(ecto_ros.CameraInfo2Cv),
                 'camera_info_depth': CellInfo(ecto_ros.CameraInfo2Cv),
-                'cloud': CellInfo(MatToPointCloudXYZOrganized),
                 'crop_box': CellInfo(CropBox)}
+        if HAS_PCL:
+            res['cloud'] = CellInfo(MatToPointCloudXYZOrganized)
+        return res
 
     @staticmethod
     def declare_forwards(_p):
@@ -52,11 +58,12 @@ class BaseSource(ecto.BlackBox):
         i = {}
         o = {'camera_info_image': [Forward('K', 'K_image', 'The camera intrinsics matrix of the image camera.')],
              'camera_info_depth': [Forward('K', 'K_depth', 'The camera intrinsics matrix of the depth camera.')],
-             'cloud': [Forward('point_cloud')],
              'crop_box': [Forward('rgb', 'image', 'The RGB image from a OpenNI device.'),
                           Forward('depth', new_doc='The depth map from a OpenNI device. This is a CV_32FC1, with values in meters.'),
                           Forward('points3d'), Forward('mask')]
             }
+        if HAS_PCL:
+            o['cloud'] = [Forward('point_cloud')]
 
         return (p,i,o)
 
@@ -91,9 +98,10 @@ class BaseSource(ecto.BlackBox):
                   #self._rgb_image['image'] >> self._cloud['image'],
                   self._points3d['points3d'] >> self.crop_box['points3d'],
                   self._rgb_image['image'] >> self.crop_box['rgb'],
-                  self._depth_map['depth'] >> self.crop_box['depth'],
-                  self.crop_box['points3d'] >> self.cloud['points']
+                  self._depth_map['depth'] >> self.crop_box['depth']
                  ]
+        if HAS_PCL:
+            graph += [ self.crop_box['points3d'] >> self.cloud['points'] ]
 
         return graph
 
