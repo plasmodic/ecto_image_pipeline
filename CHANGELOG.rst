@@ -1,3 +1,8 @@
+Forthcoming
+-----------
+* remove the PCL dependency
+* Contributors: Vincent Rabaud
+
 0.5.2 (2014-04-13)
 ------------------
 * re-add opencv_candidate as a dep as it is find_packaged
