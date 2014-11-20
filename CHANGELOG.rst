@@ -1,5 +1,5 @@
-Forthcoming
------------
+0.5.3 (2014-11-20)
+------------------
 * remove the PCL dependency
 * Contributors: Vincent Rabaud
 
