@@ -23,7 +23,7 @@ struct RescaledRegisteredDepth {
     cv::Size dsize = depth_in_->size(), isize = image_in_->size();
 
     if (dsize == isize) {
-      *depth_out_ = *depth_in_;
+      rescaleDepth(*depth_in_, CV_32F, *depth_out_);
       *mask_out_ = *mask_in_;
       return ecto::OK;
     }
