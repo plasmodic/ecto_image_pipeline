@@ -1,3 +1,11 @@
+Forthcoming
+-----------
+* Fixed issue with the format of images (now it is CV_32F)
+* clean extensions
+* do not depend on ecto_opencv for building
+* convert a test to a proper gtest
+* Contributors: Vincent Rabaud, nlyubova
+
 0.5.4 (2014-11-20)
 ------------------
 * add Eigen as a build dependency
