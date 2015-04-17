@@ -42,7 +42,8 @@ class BaseSource(ecto.BlackBox):
     def declare_cells(_p):
         res = {'camera_info_image': CellInfo(ecto_ros.CameraInfo2Cv),
                 'camera_info_depth': CellInfo(ecto_ros.CameraInfo2Cv),
-                'crop_box': CellInfo(CropBox)}
+                'crop_box': CellInfo(CropBox),
+                'depth_map': CellInfo(RescaledRegisteredDepth)}
         if HAS_PCL:
             res['cloud'] = CellInfo(MatToPointCloudXYZOrganized)
         return res
@@ -57,14 +58,13 @@ class BaseSource(ecto.BlackBox):
 
         i = {}
         o = {'camera_info_image': [Forward('K', 'K_image', 'The camera intrinsics matrix of the image camera.')],
-             'camera_info_depth': [Forward('K', 'K_depth', 'The camera intrinsics matrix of the depth camera.')],
+             'depth_map': [Forward('K', 'K_depth', 'The camera intrinsics matrix of the depth camera.')],
              'crop_box': [Forward('rgb', 'image', 'The RGB image from a OpenNI device.'),
                           Forward('depth', new_doc='The depth map from a OpenNI device. This is a CV_32FC1, with values in meters.'),
                           Forward('points3d'), Forward('mask')]
             }
         if HAS_PCL:
             o['cloud'] = [Forward('point_cloud')]
-
         return (p,i,o)
 
     def configure(self, _p, _i, _o):
@@ -73,7 +73,6 @@ class BaseSource(ecto.BlackBox):
         self._rgb_image = ecto_ros.Image2Mat(swap_rgb=True)
 
         #these transform the depth into something usable
-        self._depth_map = RescaledRegisteredDepth()
         self._points3d = DepthTo3d()
         #self._depth_mask = BaseSource._depth_mask()
 
@@ -86,19 +85,20 @@ class BaseSource(ecto.BlackBox):
                   ]
 
         #rescaling ...
-        graph += [self._depth_converter['image'] >> self._depth_map['depth'],
-                  self._rgb_image['image'] >> self._depth_map['image'],
+        graph += [self._depth_converter['image'] >> self.depth_map['depth'],
+                  self._rgb_image['image'] >> self.depth_map['image'],
+                  self.camera_info_depth['K'] >> self.depth_map['K'],
                   ]
 
         #depth ~> 3d calculations
         graph += [
-                  self._depth_map['depth'] >> self._points3d['depth'],
-                  self.camera_info_depth['K'] >> self._points3d['K'],
+                  self.depth_map['depth'] >> self._points3d['depth'],
+                  self.depth_map['K'] >> self._points3d['K'],
                   #self._depth_map['depth'] >> self._depth_mask['depth'],
                   #self._rgb_image['image'] >> self._cloud['image'],
                   self._points3d['points3d'] >> self.crop_box['points3d'],
                   self._rgb_image['image'] >> self.crop_box['rgb'],
-                  self._depth_map['depth'] >> self.crop_box['depth']
+                  self.depth_map['depth'] >> self.crop_box['depth']
                  ]
         if HAS_PCL:
             graph += [ self.crop_box['points3d'] >> self.cloud['points'] ]
