@@ -1,3 +1,8 @@
+Forthcoming
+-----------
+* fixing the depth rescale and its calibration matrix
+* Contributors: nlyubova
+
 0.5.5 (2015-04-06)
 ------------------
 * Fixed issue with the format of images (now it is CV_32F)
