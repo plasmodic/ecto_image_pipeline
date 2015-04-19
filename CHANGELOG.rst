@@ -1,5 +1,5 @@
-Forthcoming
------------
+0.5.6 (2015-04-19)
+------------------
 * fixing the depth rescale and its calibration matrix
 * Contributors: nlyubova
 
