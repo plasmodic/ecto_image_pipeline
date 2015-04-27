@@ -21,5 +21,7 @@
   <run_depend>eigen</run_depend>
   <run_depend>opencv_candidate</run_depend>
 
+  <test_depend>rosunit</test_depend>
+
   <buildtool_depend>catkin</buildtool_depend>
 </package>
