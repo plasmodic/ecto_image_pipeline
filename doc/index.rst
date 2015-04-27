@@ -50,7 +50,7 @@ test it
 
 use it
 ^^^^^^
-See samples/user_project for a project that uses ecto_image_pipeline
+See samples/ for projects that use ecto_image_pipeline
 
 
 
