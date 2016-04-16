@@ -21,10 +21,17 @@ namespace image_pipeline
     double right_rms = cv::calibrateCamera(object_points, right_points, right_size, K_right, D_right, rvecs, tvecs,
                                            flags);
 
+#if CV_MAJOR_VERSION >= 3
+    double stereo_rms = cv::stereoCalibrate(object_points, left_points, right_points, K_left, D_left, K_right, D_right,
+                                            left_size, R, T, E, F,
+                                            cv::CALIB_FIX_INTRINSIC | flags,
+                                            cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 500, 1e-6));
+#else
     double stereo_rms = cv::stereoCalibrate(object_points, left_points, right_points, K_left, D_left, K_right, D_right,
                                             left_size, R, T, E, F,
                                             cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 500, 1e-6),
                                             cv::CALIB_FIX_INTRINSIC | flags);
+#endif
 
     std::cout << "image size:" << image_size.width << ":" << image_size.height << std::endl;
     std::cout << "R:" << R << std::endl;

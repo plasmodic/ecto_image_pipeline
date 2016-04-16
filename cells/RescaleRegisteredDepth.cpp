@@ -2,7 +2,12 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#if CV_MAJOR_VERSION >= 3
+#include <opencv2/rgbd.hpp>
+using cv::rgbd::rescaleDepth;
+#else
 #include <opencv2/rgbd/rgbd.hpp>
+#endif
 
 using ecto::tendrils;
 
