@@ -5,7 +5,7 @@ find_package(Boost REQUIRED)
 find_package(catkin REQUIRED cmake_modules opencv_candidate)
 find_package(Eigen REQUIRED)
 find_package(OpenCV REQUIRED)
-find_package(PCL QUIET)
+find_package(PCL QUIET COMPONENTS common)
 if(PCL_FOUND)
 catkin_package(CATKIN_DEPENDS opencv_candidate
                DEPENDS Boost Eigen OpenCV PCL
