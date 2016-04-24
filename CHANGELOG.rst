@@ -1,3 +1,11 @@
+Forthcoming
+-----------
+* fix PCL compilation
+* fix compilation with OpenCV3
+* convert tests to proper nosetests
+* move samples to the proper folder
+* Contributors: Vincent Rabaud
+
 0.5.6 (2015-04-19)
 ------------------
 * fixing the depth rescale and its calibration matrix
