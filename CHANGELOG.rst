@@ -1,5 +1,5 @@
-Forthcoming
------------
+0.5.7 (2016-04-24)
+------------------
 * fix PCL compilation
 * fix compilation with OpenCV3
 * convert tests to proper nosetests
